@@ -1,0 +1,17 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/variableLibrary/definition/variables/1.0.0/schema.json",
+  "variables": [
+    {
+      "name": "bronze_path",
+      "note": "",
+      "type": "String",
+      "value": "abfss://2e0a9a0f-a9ac-4770-9137-10b52d0b6df6@onelake.dfs.fabric.microsoft.com/c4c9cf64-1667-4152-bd26-12854382cfbe"
+    },
+    {
+      "name": "silver_path",
+      "note": "",
+      "type": "String",
+      "value": "abfss://2e0a9a0f-a9ac-4770-9137-10b52d0b6df6@onelake.dfs.fabric.microsoft.com/41c4f02d-1dba-4787-a05c-4fb6306e3f15"
+    }
+  ]
+}

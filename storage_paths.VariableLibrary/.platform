@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "VariableLibrary",
+    "displayName": "storage_paths"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "e6a98a31-8156-8bd3-44fb-3ea762a98ce4"
+  }
+}
