@@ -14,7 +14,10 @@
               },
               "source_name": {
                 "type": "String",
-                "value": "TLC_yellow_taxi"
+                "value": {
+                  "value": "@pipeline().libraryVariables.yellow_taxi",
+                  "type": "Expression"
+                }
               }
             },
             "partitionOption": "None",
@@ -74,7 +77,7 @@
                       "value": "UPDATE meta.ingestion_control\n  SET status = 'running',\n      started_at = CURRENT_TIMESTAMP,\n      ended_at = NULL,\n      error_message = NULL\n  WHERE source_name = '@{item().source_name}'\n    AND partition_key = '@{item().partition_key}'",
                       "type": "Expression"
                     },
-                    "type": "Query"
+                    "type": "NonQuery"
                   }
                 ],
                 "scriptBlockExecutionTimeout": "02:00:00"
@@ -185,95 +188,93 @@
               ]
             },
             {
-              "type": "IfCondition",
+              "type": "Script",
               "typeProperties": {
-                "expression": {
-                  "value": "@equals(activity('copy_parquet_to_bronze').output.executionDetails[0].status, 'Succeeded')",
-                  "type": "Expression"
-                },
-                "ifTrueActivities": [
+                "scripts": [
                   {
-                    "type": "Script",
-                    "typeProperties": {
-                      "scripts": [
-                        {
-                          "text": {
-                            "value": "UPDATE meta.ingestion_control\n  SET status = 'succeeded',\n    silver_status='pending',\n      ended_at = CURRENT_TIMESTAMP,\n      error_message = NULL\n  WHERE source_name = '@{item().source_name}'\n    AND partition_key = '@{item().partition_key}'",
-                            "type": "Expression"
-                          },
-                          "type": "Query"
-                        }
-                      ],
-                      "scriptBlockExecutionTimeout": "02:00:00"
+                    "text": {
+                      "value": "UPDATE meta.ingestion_control\n  SET status = 'succeeded',\n    silver_status='pending',\n      ended_at = CURRENT_TIMESTAMP,\n      error_message = NULL\n  WHERE source_name = '@{item().source_name}'\n    AND partition_key = '@{item().partition_key}'",
+                      "type": "Expression"
                     },
-                    "linkedService": {
-                      "name": "wh_meta",
-                      "properties": {
-                        "type": "DataWarehouse",
-                        "typeProperties": {
-                          "artifactId": "c540ca12-b933-43b7-8ccd-de18e4ef323f",
-                          "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
-                          "workspaceId": "2e0a9a0f-a9ac-4770-9137-10b52d0b6df6"
-                        },
-                        "annotations": []
-                      }
-                    },
-                    "policy": {
-                      "timeout": "0.12:00:00",
-                      "retry": 0,
-                      "retryIntervalInSeconds": 30,
-                      "secureInput": false,
-                      "secureOutput": false
-                    },
-                    "name": "mark_succeeded",
-                    "dependsOn": []
+                    "type": "NonQuery"
                   }
                 ],
-                "ifFalseActivities": [
-                  {
-                    "type": "Script",
-                    "typeProperties": {
-                      "scripts": [
-                        {
-                          "text": {
-                            "value": "UPDATE meta.ingestion_control\n  SET status = 'failed',\n      ended_at = CURRENT_TIMESTAMP,\n      error_message = '@{replace(string(activity('copy_parquet_to_bronze').error), '''', '''''')}'\n  WHERE source_name = '@{item().source_name}'\n    AND partition_key = '@{item().partition_key}'",
-                            "type": "Expression"
-                          },
-                          "type": "Query"
-                        }
-                      ],
-                      "scriptBlockExecutionTimeout": "02:00:00"
-                    },
-                    "linkedService": {
-                      "name": "wh_meta",
-                      "properties": {
-                        "type": "DataWarehouse",
-                        "typeProperties": {
-                          "artifactId": "c540ca12-b933-43b7-8ccd-de18e4ef323f",
-                          "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
-                          "workspaceId": "2e0a9a0f-a9ac-4770-9137-10b52d0b6df6"
-                        },
-                        "annotations": []
-                      }
-                    },
-                    "policy": {
-                      "timeout": "0.12:00:00",
-                      "retry": 0,
-                      "retryIntervalInSeconds": 30,
-                      "secureInput": false,
-                      "secureOutput": false
-                    },
-                    "name": "mark_failed",
-                    "dependsOn": []
-                  }
-                ]
+                "scriptBlockExecutionTimeout": "02:00:00"
               },
-              "name": "copy_succeeded",
+              "linkedService": {
+                "name": "wh_meta",
+                "properties": {
+                  "type": "DataWarehouse",
+                  "typeProperties": {
+                    "artifactId": "c540ca12-b933-43b7-8ccd-de18e4ef323f",
+                    "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
+                    "workspaceId": "2e0a9a0f-a9ac-4770-9137-10b52d0b6df6"
+                  },
+                  "annotations": []
+                }
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "mark_succeeded",
               "dependsOn": [
                 {
                   "activity": "copy_parquet_to_bronze",
                   "dependencyConditions": [
-                    "Completed"
+                    "Succeeded"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Script",
+              "typeProperties": {
+                "scripts": [
+                  {
+                    "text": {
+                      "value": "UPDATE meta.ingestion_control\n  SET status = 'failed',\n      ended_at = CURRENT_TIMESTAMP,\n      error_message = '@{replace(string(activity('copy_parquet_to_bronze').error), '''', '''''')}'\n  WHERE source_name = '@{item().source_name}'\n    AND partition_key = '@{item().partition_key}'",
+                      "type": "Expression"
+                    },
+                    "type": "NonQuery"
+                  }
+                ],
+                "scriptBlockExecutionTimeout": "02:00:00"
+              },
+              "linkedService": {
+                "name": "wh_meta",
+                "properties": {
+                  "type": "DataWarehouse",
+                  "typeProperties": {
+                    "artifactId": "c540ca12-b933-43b7-8ccd-de18e4ef323f",
+                    "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
+                    "workspaceId": "2e0a9a0f-a9ac-4770-9137-10b52d0b6df6"
+                  },
+                  "annotations": []
+                }
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "mark_failed",
+              "dependsOn": [
+                {
+                  "activity": "copy_parquet_to_bronze",
+                  "dependencyConditions": [
+                    "Failed"
+                  ]
+                },
+                {
+                  "activity": "mark_running",
+                  "dependencyConditions": [
+                    "Failed"
                   ]
                 }
               ]
@@ -291,18 +292,29 @@
         ]
       },
       {
-        "type": "Script",
+        "type": "SqlServerStoredProcedure",
         "typeProperties": {
-          "scripts": [
-            {
-              "text": {
-                "value": "INSERT INTO meta.pipeline_run_log (run_id, pipeline_name, layer, status, started_at)\nVALUES ('@{variables('RunID')}', 'pl_bronze_taxi', 'bronze', 'running', CURRENT_TIMESTAMP);",
+          "storedProcedureName": "[meta].[log_pipeline_start]",
+          "storedProcedureParameters": {
+            "layer": {
+              "value": "silver",
+              "type": "String"
+            },
+            "pipeline_name": {
+              "value": {
+                "value": "@pipeline().PipelineName",
                 "type": "Expression"
               },
-              "type": "Query"
+              "type": "String"
+            },
+            "run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "String"
             }
-          ],
-          "scriptBlockExecutionTimeout": "02:00:00"
+          }
         },
         "linkedService": {
           "name": "wh_meta",
@@ -324,87 +336,27 @@
           "secureOutput": false
         },
         "name": "log_pipeline_start",
-        "dependsOn": [
-          {
-            "activity": "Set RunID",
-            "dependencyConditions": [
-              "Succeeded"
-            ]
-          }
-        ]
-      },
-      {
-        "type": "Script",
-        "typeProperties": {
-          "scripts": [
-            {
-              "text": {
-                "value": "UPDATE meta.pipeline_run_log\nSET status = 'succeeded',\n    ended_at = CURRENT_TIMESTAMP,\n    logged_at = CURRENT_TIMESTAMP,\n    message = '@{concat('Loaded ', activity('get_pending_partitions').output.count, ' files')}'\nWHERE run_id = '@{variables('RunID')}';",
-                "type": "Expression"
-              },
-              "type": "Query"
-            }
-          ],
-          "scriptBlockExecutionTimeout": "02:00:00"
-        },
-        "linkedService": {
-          "name": "wh_meta",
-          "properties": {
-            "type": "DataWarehouse",
-            "typeProperties": {
-              "artifactId": "c540ca12-b933-43b7-8ccd-de18e4ef323f",
-              "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
-              "workspaceId": "2e0a9a0f-a9ac-4770-9137-10b52d0b6df6"
-            },
-            "annotations": []
-          }
-        },
-        "policy": {
-          "timeout": "0.12:00:00",
-          "retry": 0,
-          "retryIntervalInSeconds": 30,
-          "secureInput": false,
-          "secureOutput": false
-        },
-        "name": "log_pipeline_success",
-        "dependsOn": [
-          {
-            "activity": "for_each_partition",
-            "dependencyConditions": [
-              "Succeeded"
-            ]
-          }
-        ]
-      },
-      {
-        "type": "SetVariable",
-        "typeProperties": {
-          "variableName": "RunID",
-          "value": {
-            "value": "@pipeline().RunId",
-            "type": "Expression"
-          }
-        },
-        "policy": {
-          "secureInput": false,
-          "secureOutput": false
-        },
-        "name": "Set RunID",
         "dependsOn": []
       },
       {
-        "type": "Script",
+        "type": "SqlServerStoredProcedure",
         "typeProperties": {
-          "scripts": [
-            {
-              "text": {
-                "value": "UPDATE meta.pipeline_run_log\nSET status = 'failed',\n    ended_at = CURRENT_TIMESTAMP,\n    logged_at = CURRENT_TIMESTAMP,\n    message = '@{concat('Failed to load ', activity('get_pending_partitions').output.count, ' files')}'\nWHERE run_id = '@{variables('RunID')}';",
+          "storedProcedureName": "[meta].[log_pipeline_update]",
+          "storedProcedureParameters": {
+            "message": {
+              "type": "String"
+            },
+            "run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
                 "type": "Expression"
               },
-              "type": "Query"
+              "type": "String"
+            },
+            "status": {
+              "type": "String"
             }
-          ],
-          "scriptBlockExecutionTimeout": "02:00:00"
+          }
         },
         "linkedService": {
           "name": "wh_meta",
@@ -425,10 +377,67 @@
           "secureInput": false,
           "secureOutput": false
         },
-        "name": "log_pipeline_fail",
+        "name": "log_pipeline_succeeded",
         "dependsOn": [
           {
             "activity": "for_each_partition",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "SqlServerStoredProcedure",
+        "typeProperties": {
+          "storedProcedureName": "[meta].[log_pipeline_update]",
+          "storedProcedureParameters": {
+            "message": {
+              "value": null,
+              "type": "String"
+            },
+            "run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "status": {
+              "value": "failed",
+              "type": "String"
+            }
+          }
+        },
+        "linkedService": {
+          "name": "wh_meta",
+          "properties": {
+            "type": "DataWarehouse",
+            "typeProperties": {
+              "artifactId": "c540ca12-b933-43b7-8ccd-de18e4ef323f",
+              "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
+              "workspaceId": "2e0a9a0f-a9ac-4770-9137-10b52d0b6df6"
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "log_pipeline_failed",
+        "dependsOn": [
+          {
+            "activity": "for_each_partition",
+            "dependencyConditions": [
+              "Failed"
+            ]
+          },
+          {
+            "activity": "get_pending_partitions",
             "dependencyConditions": [
               "Failed"
             ]
@@ -436,6 +445,13 @@
         ]
       }
     ],
+    "libraryVariables": {
+      "yellow_taxi": {
+        "type": "String",
+        "variableName": "yellow_taxi",
+        "libraryName": "bronze_source_names"
+      }
+    },
     "variables": {
       "RunID": {
         "type": "String"

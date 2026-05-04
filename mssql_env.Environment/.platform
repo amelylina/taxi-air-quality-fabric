@@ -1,11 +1,12 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
   "metadata": {
-    "type": "DataPipeline",
-    "displayName": "OLD_pl_silver_taxi"
+    "type": "Environment",
+    "displayName": "mssql_env",
+    "description": "Environment"
   },
   "config": {
     "version": "2.0",
-    "logicalId": "b7eaf053-1096-8822-4e73-3b8dde98981e"
+    "logicalId": "465e8bc1-939a-9227-4dc4-5b5c6bda6737"
   }
 }

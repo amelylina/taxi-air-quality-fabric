@@ -67,16 +67,16 @@ conn = connect(connection_string, attrs_before={1256: token_struct})
 # df_pandas = pd.read_sql("SELECT * FROM meta.ingestion_control", conn)
 # display(df_pandas)
 
-# Native Cursor Example
-cursor = conn.cursor()
-cursor.execute("""
-INSERT INTO meta.ingestion_control
-(source_name, partition_key, source_url, status, created_at)
-VALUES ('test', '2025-01', 'yellow_tripdata_2025-01.parquet', 'lmao', CURRENT_TIMESTAMP)
-""")
-# Pandas example
-df_pandas = pd.read_sql("SELECT * FROM meta.ingestion_control", conn)
-display(df_pandas)
+# # Native Cursor Example
+# cursor = conn.cursor()
+# cursor.execute("""
+# INSERT INTO meta.ingestion_control
+# (source_name, partition_key, source_url, status, created_at)
+# VALUES ('test', '2025-01', 'yellow_tripdata_2025-01.parquet', 'lmao', CURRENT_TIMESTAMP)
+# """)
+# # Pandas example
+# df_pandas = pd.read_sql("SELECT * FROM meta.ingestion_control", conn)
+# display(df_pandas)
 
 # METADATA ********************
 

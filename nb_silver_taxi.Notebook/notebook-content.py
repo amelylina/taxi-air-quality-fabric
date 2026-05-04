@@ -16,24 +16,29 @@
 # META           "id": "41c4f02d-1dba-4787-a05c-4fb6306e3f15"
 # META         }
 # META       ]
+# META     },
+# META     "environment": {
+# META       "environmentId": "465e8bc1-939a-9227-4dc4-5b5c6bda6737",
+# META       "workspaceId": "00000000-0000-0000-0000-000000000000"
 # META     }
 # META   }
 # META }
 
 # CELL ********************
 
-import com.microsoft.spark.fabric
-from com.microsoft.spark.fabric.Constants import Constants
+import struct
 from pyspark.sql import functions as F, DataFrame
 from datetime import datetime
 from functools import reduce
+import pandas as pd
+from wh_conn import get_con
 
-BRONZE_PATH = notebookutils.variableLibrary.getLibrary('storage_paths').bronze_path
+BRONZE_PATH = notebookutils.variableLibrary.getLibrary('storage_lib').bronze_path
+SERVER_NAME = notebookutils.variableLibrary.getLibrary('storage_lib').meta_server
+SOURCE_NAME = notebookutils.variableLibrary.getLibrary('bronze_source_names').yellow_taxi
 
-SOURCE_NAME = "TLC_yellow_taxi"
 BRONZE_BASE = BRONZE_PATH + "/Files/yellow_taxi"
 SILVER_TABLE = "taxi_trips"
-SILVER_STAGING = "meta.silver_staging"
 META_TABLE = "meta.ingestion_control"
 META_WAREHOUSE = "wh_meta"
 
@@ -56,6 +61,34 @@ TARGET_TYPES = {
     "congestion_surcharge": "double",
     "airport_fee": "double",
 }
+
+token_bytes = notebookutils.credentials.getToken("https://database.windows.net").encode("UTF-16-LE")
+conn = get_con(token_bytes, SERVER_NAME, META_WAREHOUSE)
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+conn = get_con(SERVER_NAME, META_WAREHOUSE)
+pdf = pd.read_sql("""
+    SELECT partition_key
+    FROM meta.ingestion_control
+    WHERE source_name = ?
+      AND status = 'succeeded'
+      AND silver_status = 'running'
+    ORDER BY partition_key
+""", conn)
+
+pending_df = spark.createDataFrame(pdf) if not pdf.empty else None
+partition_keys = pdf["partition_key"].tolist()
+
+if not partition_keys:
+    mssparkutils.notebook.exit({"status": "succeeded", "partitions_processed": 0})
 
 # METADATA ********************
 
@@ -80,27 +113,6 @@ def normalize(df: DataFrame) -> DataFrame:
             df = df.withColumn(col_name, F.col(col_name).cast(target_type))
     return df
 
-pending_df = spark.read.synapsesql(f"{META_WAREHOUSE}.{META_TABLE}") \
-    .filter((F.col("source_name") == SOURCE_NAME) &
-            (F.col("status") == "succeeded") &
-            (F.col("silver_status") == "running")) \
-    .select("partition_key") \
-    .orderBy("partition_key")
-
-partition_keys = [r.partition_key for r in pending_df.collect()]
-
-if not partition_keys:
-    mssparkutils.notebook.exit({"status": "succeeded", "partitions_processed": 0})
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
 def path_for_partition(pk: str) -> str:
     y, m = pk.split("-")
     return f"{BRONZE_BASE}/year={y}/month={m}/yellow_tripdata_{pk}.parquet"
@@ -117,6 +129,9 @@ for pk in partition_keys:
 
 succeeded_partitions = [pk for pk in partition_keys
                         if pk not in {p for p, _ in failed_partitions}]
+
+print(succeeded_partitions)
+print(failed_partitions)
 
 # METADATA ********************
 
@@ -217,7 +232,9 @@ meta_df.write.mode("overwrite").synapsesql(f"{META_WAREHOUSE}.{SILVER_STAGING}")
 
 # META {
 # META   "language": "python",
-# META   "language_group": "synapse_pyspark"
+# META   "language_group": "synapse_pyspark",
+# META   "frozen": true,
+# META   "editable": false
 # META }
 
 # CELL ********************
