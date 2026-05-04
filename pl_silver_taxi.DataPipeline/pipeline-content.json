@@ -121,49 +121,6 @@
       {
         "type": "SqlServerStoredProcedure",
         "typeProperties": {
-          "storedProcedureName": "[meta].[silver_update_ingestion]",
-          "storedProcedureParameters": {
-            "source_name": {
-              "value": {
-                "value": "@pipeline().libraryVariables.yellow_taxi",
-                "type": "Expression"
-              },
-              "type": "String"
-            }
-          }
-        },
-        "linkedService": {
-          "name": "wh_meta",
-          "properties": {
-            "type": "DataWarehouse",
-            "typeProperties": {
-              "artifactId": "c540ca12-b933-43b7-8ccd-de18e4ef323f",
-              "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
-              "workspaceId": "2e0a9a0f-a9ac-4770-9137-10b52d0b6df6"
-            },
-            "annotations": []
-          }
-        },
-        "policy": {
-          "timeout": "0.12:00:00",
-          "retry": 0,
-          "retryIntervalInSeconds": 30,
-          "secureInput": false,
-          "secureOutput": false
-        },
-        "name": "update_meta_silver",
-        "dependsOn": [
-          {
-            "activity": "silver_parsing_loading",
-            "dependencyConditions": [
-              "Succeeded"
-            ]
-          }
-        ]
-      },
-      {
-        "type": "SqlServerStoredProcedure",
-        "typeProperties": {
           "storedProcedureName": "[meta].[log_pipeline_update]",
           "storedProcedureParameters": {
             "message": {
@@ -211,7 +168,7 @@
         "name": "log_pipeline_succeeded",
         "dependsOn": [
           {
-            "activity": "update_meta_silver",
+            "activity": "silver_parsing_loading",
             "dependencyConditions": [
               "Succeeded"
             ]
@@ -261,12 +218,6 @@
         },
         "name": "log_pipeline_failed",
         "dependsOn": [
-          {
-            "activity": "update_meta_silver",
-            "dependencyConditions": [
-              "Failed"
-            ]
-          },
           {
             "activity": "silver_parsing_loading",
             "dependencyConditions": [

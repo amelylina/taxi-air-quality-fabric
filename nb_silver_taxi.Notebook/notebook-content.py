@@ -26,12 +26,13 @@
 
 # CELL ********************
 
+import json
 import struct
 from pyspark.sql import functions as F, DataFrame
 from datetime import datetime
 from functools import reduce
 import pandas as pd
-from wh_conn import get_con
+from wh_conn import get_con, check_con
 
 BRONZE_PATH = notebookutils.variableLibrary.getLibrary('storage_lib').bronze_path
 SERVER_NAME = notebookutils.variableLibrary.getLibrary('storage_lib').meta_server
@@ -61,8 +62,10 @@ TARGET_TYPES = {
     "congestion_surcharge": "double",
     "airport_fee": "double",
 }
+def get_bytes():
+    return notebookutils.credentials.getToken("https://database.windows.net").encode("UTF-16-LE")
 
-token_bytes = notebookutils.credentials.getToken("https://database.windows.net").encode("UTF-16-LE")
+token_bytes = get_bytes()
 conn = get_con(token_bytes, SERVER_NAME, META_WAREHOUSE)
 
 # METADATA ********************
@@ -74,21 +77,24 @@ conn = get_con(token_bytes, SERVER_NAME, META_WAREHOUSE)
 
 # CELL ********************
 
-conn = get_con(SERVER_NAME, META_WAREHOUSE)
-pdf = pd.read_sql("""
-    SELECT partition_key
-    FROM meta.ingestion_control
-    WHERE source_name = ?
-      AND status = 'succeeded'
-      AND silver_status = 'running'
-    ORDER BY partition_key
-""", conn)
+try:
+    pdf = pd.read_sql("""
+        SELECT partition_key
+        FROM meta.ingestion_control
+        WHERE source_name = ?
+        AND status = 'succeeded'
+        AND silver_status = 'running'
+        ORDER BY partition_key
+    """, conn, params=[SOURCE_NAME])
 
-pending_df = spark.createDataFrame(pdf) if not pdf.empty else None
-partition_keys = pdf["partition_key"].tolist()
+    pending_df = spark.createDataFrame(pdf) if not pdf.empty else None
+    partition_keys = pdf["partition_key"].tolist()
 
-if not partition_keys:
-    mssparkutils.notebook.exit({"status": "succeeded", "partitions_processed": 0})
+    if not partition_keys:
+        mssparkutils.notebook.exit({"status": "succeeded", "partitions_processed": 0})
+except Exception:
+    conn.close()
+    raise
 
 # METADATA ********************
 
@@ -129,9 +135,6 @@ for pk in partition_keys:
 
 succeeded_partitions = [pk for pk in partition_keys
                         if pk not in {p for p, _ in failed_partitions}]
-
-print(succeeded_partitions)
-print(failed_partitions)
 
 # METADATA ********************
 
@@ -176,18 +179,17 @@ if normalized_dfs:
         .withColumn("source_system", F.lit(SOURCE_NAME))
     )
 
-    (df_silver.write
-        .format("delta")
-        .mode("overwrite")
-        .option("partitionOverwriteMode", "dynamic")
-        .partitionBy("year", "month")
-        .saveAsTable(SILVER_TABLE))
-
     silver_row_counts = (df_silver.groupBy("year", "month").count().collect())
     rows_by_partition = {f"{r.year:04d}-{r.month:02d}": r['count']
                          for r in silver_row_counts}
 
-    print(rows_by_partition)
+    new_data = []
+    for pk, cnt in rows_by_partition.items():
+        new_data.append({"partition_key":pk,"silver_status":"succeeded","silver_rows_written":cnt,"silver_error_message":None})
+
+    for pk, err in failed_partitions:
+        new_data.append({"partition_key":pk,"silver_status":"failed","silver_rows_written":None,"silver_error_message":err})
+
 else:
     rows_by_partition = {}
 
@@ -200,47 +202,6 @@ else:
 
 # CELL ********************
 
-from pyspark.sql.types import StructType, StructField, StringType, LongType
-
-status_rows = []
-for pk, cnt in rows_by_partition.items():
-    status_rows.append((SOURCE_NAME, pk, "succeeded", cnt, None))
-
-for pk, err in failed_partitions:
-    safe_err = err.replace("'", "''")[:1000]
-    status_rows.append((SOURCE_NAME, pk, "failed", None, safe_err))
-
-status_schema = StructType([
-    StructField("source_name", StringType(), False),
-    StructField("partition_key", StringType(), False),
-    StructField("silver_status", StringType(), False),
-    StructField("silver_rows_written", LongType(), True),
-    StructField("silver_error_message", StringType(), True),
-])
-
-status_df = spark.createDataFrame(status_rows,schema=status_schema)
-
-meta_df = pending_df.join(
-    status_df,
-    on="partition_key",
-    how="left"
-)
-
-meta_df.write.mode("overwrite").synapsesql(f"{META_WAREHOUSE}.{SILVER_STAGING}")
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark",
-# META   "frozen": true,
-# META   "editable": false
-# META }
-
-# CELL ********************
-
-import json
-
 exit_payload = {
     "status": "succeeded" if not failed_partitions else "partial_failure",
     "succeeded_count": len(rows_by_partition),
@@ -250,7 +211,35 @@ exit_payload = {
     "failed_partitions": [pk for pk, _ in failed_partitions],
 }
 
-mssparkutils.notebook.exit(json.dumps(exit_payload))
+try:
+    (df_silver.write
+        .format("delta")
+        .mode("overwrite")
+        .option("partitionOverwriteMode", "dynamic")
+        .partitionBy("year", "month")
+        .saveAsTable(SILVER_TABLE))
+
+    if not check_con(conn): 
+        token_bytes = get_bytes()
+        conn = get_con(token_bytes, SERVER_NAME, META_WAREHOUSE)
+
+    with conn.cursor() as cur:
+        cur.executemany(
+            """
+            UPDATE meta.ingestion_control 
+            SET silver_status=%(silver_status)s, silver_rows_written=%(silver_rows_written)s, silver_error_message=%(silver_error_message)s
+            WHERE partition_key=%(partition_key)s
+            """,
+            new_data
+        )
+    conn.commit()
+    mssparkutils.notebook.exit(json.dumps(exit_payload))
+except Exception:
+    conn.rollback()
+    raise
+finally:
+    conn.close()
+
 
 # METADATA ********************
 
