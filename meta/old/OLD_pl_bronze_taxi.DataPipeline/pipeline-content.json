@@ -1,0 +1,445 @@
+{
+  "properties": {
+    "activities": [
+      {
+        "type": "Lookup",
+        "typeProperties": {
+          "source": {
+            "type": "DataWarehouseSource",
+            "sqlReaderStoredProcedureName": "[meta].[get_bronze_pending]",
+            "storedProcedureParameters": {
+              "limit": {
+                "type": "Int32",
+                "value": "12"
+              },
+              "source_name": {
+                "type": "String",
+                "value": "TLC_yellow_taxi"
+              }
+            },
+            "partitionOption": "None",
+            "queryTimeout": "02:00:00"
+          },
+          "datasetSettings": {
+            "type": "DataWarehouseTable",
+            "schema": [],
+            "linkedService": {
+              "name": "wh_meta",
+              "properties": {
+                "type": "DataWarehouse",
+                "typeProperties": {
+                  "artifactId": "c540ca12-b933-43b7-8ccd-de18e4ef323f",
+                  "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
+                  "workspaceId": "2e0a9a0f-a9ac-4770-9137-10b52d0b6df6"
+                },
+                "annotations": []
+              }
+            },
+            "annotations": []
+          },
+          "firstRowOnly": false
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "get_pending_partitions",
+        "dependsOn": [
+          {
+            "activity": "log_pipeline_start",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "ForEach",
+        "typeProperties": {
+          "isSequential": true,
+          "items": {
+            "value": "@activity('get_pending_partitions').output.value",
+            "type": "Expression"
+          },
+          "activities": [
+            {
+              "type": "Script",
+              "typeProperties": {
+                "scripts": [
+                  {
+                    "text": {
+                      "value": "UPDATE meta.ingestion_control\n  SET status = 'running',\n      started_at = CURRENT_TIMESTAMP,\n      ended_at = NULL,\n      error_message = NULL\n  WHERE source_name = '@{item().source_name}'\n    AND partition_key = '@{item().partition_key}'",
+                      "type": "Expression"
+                    },
+                    "type": "Query"
+                  }
+                ],
+                "scriptBlockExecutionTimeout": "02:00:00"
+              },
+              "linkedService": {
+                "name": "wh_meta",
+                "properties": {
+                  "type": "DataWarehouse",
+                  "typeProperties": {
+                    "artifactId": "c540ca12-b933-43b7-8ccd-de18e4ef323f",
+                    "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
+                    "workspaceId": "2e0a9a0f-a9ac-4770-9137-10b52d0b6df6"
+                  },
+                  "annotations": []
+                }
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "mark_running",
+              "dependsOn": []
+            },
+            {
+              "type": "Copy",
+              "typeProperties": {
+                "source": {
+                  "type": "BinarySource",
+                  "formatSettings": {
+                    "type": "BinaryReadSettings"
+                  },
+                  "storeSettings": {
+                    "type": "HttpReadSettings",
+                    "requestMethod": "GET"
+                  },
+                  "datasetSettings": {
+                    "type": "Binary",
+                    "typeProperties": {
+                      "location": {
+                        "type": "HttpServerLocation",
+                        "relativeUrl": {
+                          "value": "@item().source_url",
+                          "type": "Expression"
+                        }
+                      }
+                    },
+                    "externalReferences": {
+                      "connection": "0a2f1c84-4d23-46b8-aa53-b1ee1bd195fb"
+                    },
+                    "annotations": []
+                  }
+                },
+                "sink": {
+                  "type": "BinarySink",
+                  "storeSettings": {
+                    "type": "AzureBlobStorageWriteSettings"
+                  },
+                  "datasetSettings": {
+                    "type": "Binary",
+                    "typeProperties": {
+                      "location": {
+                        "type": "LakehouseLocation",
+                        "folderPath": {
+                          "value": "/yellow_taxi/year=@{substring(item().partition_key, 0, 4)}/month=@{substring(item().partition_key, 5, 2)}",
+                          "type": "Expression"
+                        },
+                        "fileName": {
+                          "value": "@item().source_url",
+                          "type": "Expression"
+                        }
+                      }
+                    },
+                    "linkedService": {
+                      "name": "lh_bronze",
+                      "properties": {
+                        "type": "Lakehouse",
+                        "typeProperties": {
+                          "artifactId": "4382cfbe-1285-bd26-4152-1667c4c9cf64",
+                          "workspaceId": "00000000-0000-0000-0000-000000000000",
+                          "rootFolder": "Files"
+                        },
+                        "annotations": []
+                      }
+                    },
+                    "annotations": []
+                  }
+                },
+                "enableStaging": false
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 2,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "copy_parquet_to_bronze",
+              "dependsOn": [
+                {
+                  "activity": "mark_running",
+                  "dependencyConditions": [
+                    "Succeeded"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "IfCondition",
+              "typeProperties": {
+                "expression": {
+                  "value": "@equals(activity('copy_parquet_to_bronze').output.executionDetails[0].status, 'Succeeded')",
+                  "type": "Expression"
+                },
+                "ifTrueActivities": [
+                  {
+                    "type": "Script",
+                    "typeProperties": {
+                      "scripts": [
+                        {
+                          "text": {
+                            "value": "UPDATE meta.ingestion_control\n  SET status = 'succeeded',\n    silver_status='pending',\n      ended_at = CURRENT_TIMESTAMP,\n      error_message = NULL\n  WHERE source_name = '@{item().source_name}'\n    AND partition_key = '@{item().partition_key}'",
+                            "type": "Expression"
+                          },
+                          "type": "Query"
+                        }
+                      ],
+                      "scriptBlockExecutionTimeout": "02:00:00"
+                    },
+                    "linkedService": {
+                      "name": "wh_meta",
+                      "properties": {
+                        "type": "DataWarehouse",
+                        "typeProperties": {
+                          "artifactId": "c540ca12-b933-43b7-8ccd-de18e4ef323f",
+                          "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
+                          "workspaceId": "2e0a9a0f-a9ac-4770-9137-10b52d0b6df6"
+                        },
+                        "annotations": []
+                      }
+                    },
+                    "policy": {
+                      "timeout": "0.12:00:00",
+                      "retry": 0,
+                      "retryIntervalInSeconds": 30,
+                      "secureInput": false,
+                      "secureOutput": false
+                    },
+                    "name": "mark_succeeded",
+                    "dependsOn": []
+                  }
+                ],
+                "ifFalseActivities": [
+                  {
+                    "type": "Script",
+                    "typeProperties": {
+                      "scripts": [
+                        {
+                          "text": {
+                            "value": "UPDATE meta.ingestion_control\n  SET status = 'failed',\n      ended_at = CURRENT_TIMESTAMP,\n      error_message = '@{replace(string(activity('copy_parquet_to_bronze').error), '''', '''''')}'\n  WHERE source_name = '@{item().source_name}'\n    AND partition_key = '@{item().partition_key}'",
+                            "type": "Expression"
+                          },
+                          "type": "Query"
+                        }
+                      ],
+                      "scriptBlockExecutionTimeout": "02:00:00"
+                    },
+                    "linkedService": {
+                      "name": "wh_meta",
+                      "properties": {
+                        "type": "DataWarehouse",
+                        "typeProperties": {
+                          "artifactId": "c540ca12-b933-43b7-8ccd-de18e4ef323f",
+                          "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
+                          "workspaceId": "2e0a9a0f-a9ac-4770-9137-10b52d0b6df6"
+                        },
+                        "annotations": []
+                      }
+                    },
+                    "policy": {
+                      "timeout": "0.12:00:00",
+                      "retry": 0,
+                      "retryIntervalInSeconds": 30,
+                      "secureInput": false,
+                      "secureOutput": false
+                    },
+                    "name": "mark_failed",
+                    "dependsOn": []
+                  }
+                ]
+              },
+              "name": "copy_succeeded",
+              "dependsOn": [
+                {
+                  "activity": "copy_parquet_to_bronze",
+                  "dependencyConditions": [
+                    "Completed"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "name": "for_each_partition",
+        "dependsOn": [
+          {
+            "activity": "get_pending_partitions",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "Script",
+        "typeProperties": {
+          "scripts": [
+            {
+              "text": {
+                "value": "INSERT INTO meta.pipeline_run_log (run_id, pipeline_name, layer, status, started_at)\nVALUES ('@{variables('RunID')}', 'pl_bronze_taxi', 'bronze', 'running', CURRENT_TIMESTAMP);",
+                "type": "Expression"
+              },
+              "type": "Query"
+            }
+          ],
+          "scriptBlockExecutionTimeout": "02:00:00"
+        },
+        "linkedService": {
+          "name": "wh_meta",
+          "properties": {
+            "type": "DataWarehouse",
+            "typeProperties": {
+              "artifactId": "c540ca12-b933-43b7-8ccd-de18e4ef323f",
+              "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
+              "workspaceId": "2e0a9a0f-a9ac-4770-9137-10b52d0b6df6"
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "log_pipeline_start",
+        "dependsOn": [
+          {
+            "activity": "Set RunID",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "Script",
+        "typeProperties": {
+          "scripts": [
+            {
+              "text": {
+                "value": "UPDATE meta.pipeline_run_log\nSET status = 'succeeded',\n    ended_at = CURRENT_TIMESTAMP,\n    logged_at = CURRENT_TIMESTAMP,\n    message = '@{concat('Loaded ', activity('get_pending_partitions').output.count, ' files')}'\nWHERE run_id = '@{variables('RunID')}';",
+                "type": "Expression"
+              },
+              "type": "Query"
+            }
+          ],
+          "scriptBlockExecutionTimeout": "02:00:00"
+        },
+        "linkedService": {
+          "name": "wh_meta",
+          "properties": {
+            "type": "DataWarehouse",
+            "typeProperties": {
+              "artifactId": "c540ca12-b933-43b7-8ccd-de18e4ef323f",
+              "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
+              "workspaceId": "2e0a9a0f-a9ac-4770-9137-10b52d0b6df6"
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "log_pipeline_success",
+        "dependsOn": [
+          {
+            "activity": "for_each_partition",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "SetVariable",
+        "typeProperties": {
+          "variableName": "RunID",
+          "value": {
+            "value": "@pipeline().RunId",
+            "type": "Expression"
+          }
+        },
+        "policy": {
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "Set RunID",
+        "dependsOn": []
+      },
+      {
+        "type": "Script",
+        "typeProperties": {
+          "scripts": [
+            {
+              "text": {
+                "value": "UPDATE meta.pipeline_run_log\nSET status = 'failed',\n    ended_at = CURRENT_TIMESTAMP,\n    logged_at = CURRENT_TIMESTAMP,\n    message = '@{concat('Failed to load ', activity('get_pending_partitions').output.count, ' files')}'\nWHERE run_id = '@{variables('RunID')}';",
+                "type": "Expression"
+              },
+              "type": "Query"
+            }
+          ],
+          "scriptBlockExecutionTimeout": "02:00:00"
+        },
+        "linkedService": {
+          "name": "wh_meta",
+          "properties": {
+            "type": "DataWarehouse",
+            "typeProperties": {
+              "artifactId": "c540ca12-b933-43b7-8ccd-de18e4ef323f",
+              "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
+              "workspaceId": "2e0a9a0f-a9ac-4770-9137-10b52d0b6df6"
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "log_pipeline_fail",
+        "dependsOn": [
+          {
+            "activity": "for_each_partition",
+            "dependencyConditions": [
+              "Failed"
+            ]
+          }
+        ]
+      }
+    ],
+    "variables": {
+      "RunID": {
+        "type": "String"
+      }
+    }
+  }
+}
