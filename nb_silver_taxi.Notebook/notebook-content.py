@@ -27,7 +27,6 @@
 # CELL ********************
 
 import json
-import struct
 from pyspark.sql import functions as F, DataFrame
 from datetime import datetime
 from functools import reduce
@@ -35,7 +34,7 @@ import pandas as pd
 from wh_conn import get_con, check_con
 
 BRONZE_PATH = notebookutils.variableLibrary.getLibrary('storage_lib').bronze_path
-SERVER_NAME = notebookutils.variableLibrary.getLibrary('storage_lib').meta_server
+SERVER_NAME = notebookutils.variableLibrary.getLibrary('storage_lib').server_url
 SOURCE_NAME = notebookutils.variableLibrary.getLibrary('bronze_source_names').yellow_taxi
 
 BRONZE_BASE = BRONZE_PATH + "/Files/yellow_taxi"
@@ -62,11 +61,8 @@ TARGET_TYPES = {
     "congestion_surcharge": "double",
     "airport_fee": "double",
 }
-def get_bytes():
-    return notebookutils.credentials.getToken("https://database.windows.net").encode("UTF-16-LE")
 
-token_bytes = get_bytes()
-conn = get_con(token_bytes, SERVER_NAME, META_WAREHOUSE)
+conn = get_con(SERVER_NAME, META_WAREHOUSE)
 
 # METADATA ********************
 
@@ -172,6 +168,8 @@ if normalized_dfs:
 
     df_silver = (
         df_clean
+        .withColumn("tpep_pickup_datetime", F.col("tpep_pickup_datetime").cast("timestamp"))
+        .withColumn("tpep_dropoff_datetime", F.col("tpep_dropoff_datetime").cast("timestamp"))
         .withColumn("trip_date", F.to_date("tpep_pickup_datetime"))
         .withColumn("hour_of_day", F.hour("tpep_pickup_datetime"))
         .withColumn("day_of_week", F.dayofweek("tpep_pickup_datetime"))
@@ -220,8 +218,7 @@ try:
         .saveAsTable(SILVER_TABLE))
 
     if not check_con(conn): 
-        token_bytes = get_bytes()
-        conn = get_con(token_bytes, SERVER_NAME, META_WAREHOUSE)
+        conn = get_con(SERVER_NAME, META_WAREHOUSE)
 
     with conn.cursor() as cur:
         cur.executemany(
