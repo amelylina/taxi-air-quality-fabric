@@ -17,7 +17,7 @@
         "name": "silver_parsing_loading",
         "dependsOn": [
           {
-            "activity": "update_meta_silver_to_running",
+            "activity": "claim_meta_silver_running",
             "dependencyConditions": [
               "Succeeded"
             ]
@@ -61,7 +61,7 @@
           "secureInput": false,
           "secureOutput": false
         },
-        "name": "update_meta_silver_to_running",
+        "name": "claim_meta_silver_running",
         "dependsOn": [
           {
             "activity": "log_pipeline_start",
@@ -225,7 +225,7 @@
             ]
           },
           {
-            "activity": "update_meta_silver_to_running",
+            "activity": "claim_meta_silver_running",
             "dependencyConditions": [
               "Failed"
             ]

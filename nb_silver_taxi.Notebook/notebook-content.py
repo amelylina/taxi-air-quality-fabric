@@ -231,7 +231,7 @@ try:
         )
     conn.commit()
     mssparkutils.notebook.exit(json.dumps(exit_payload))
-except Exception:
+except Exception as e:
     conn.rollback()
     raise
 finally:

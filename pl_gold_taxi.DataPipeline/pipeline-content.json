@@ -418,6 +418,7 @@
         "type": "String",
         "defaultValue": "fct_taxi_daily"
       }
-    }
+    },
+    "concurrency": 1
   }
 }

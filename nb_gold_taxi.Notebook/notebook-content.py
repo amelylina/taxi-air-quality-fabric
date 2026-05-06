@@ -76,7 +76,7 @@ SILVER_TABLE = "lh_silver.dbo.taxi_trips"
 
 silver = spark.read.table(SILVER_TABLE)
 
-gold = (silver.filter((F.col("ingested_At")>last_processed_ts) & (F.col("ingested_At")<=new_watermark))
+gold = (silver.filter((F.col("ingested_at")>last_processed_ts) & (F.col("ingested_At")<=new_watermark))
     .groupBy("trip_date", "pulocationid").agg(
         F.count("*").alias("trip_count"),
         F.sum("fare_amount").alias("total_fare_usd"),

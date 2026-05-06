@@ -456,6 +456,7 @@
       "RunID": {
         "type": "String"
       }
-    }
+    },
+    "concurrency": 1
   }
 }

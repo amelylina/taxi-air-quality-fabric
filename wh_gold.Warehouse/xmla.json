@@ -17,13 +17,13 @@
         "sourceLineageTag": "[dbo].[dm_date]",
         "columns": [
           {
-            "name": "date_key",
-            "dataType": "int64",
-            "sourceColumn": "date_key",
-            "formatString": "0",
-            "sourceProviderType": "bigint",
-            "sourceLineageTag": "date_key",
-            "summarizeBy": "sum",
+            "name": "date",
+            "dataType": "dateTime",
+            "sourceColumn": "date",
+            "formatString": "General Date",
+            "sourceProviderType": "date",
+            "sourceLineageTag": "date",
+            "summarizeBy": "none",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -32,13 +32,13 @@
             ]
           },
           {
-            "name": "date",
-            "dataType": "dateTime",
-            "sourceColumn": "date",
-            "formatString": "General Date",
-            "sourceProviderType": "datetime2",
-            "sourceLineageTag": "date",
-            "summarizeBy": "none",
+            "name": "date_key",
+            "dataType": "int64",
+            "sourceColumn": "date_key",
+            "formatString": "0",
+            "sourceProviderType": "int",
+            "sourceLineageTag": "date_key",
+            "summarizeBy": "sum",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -53,21 +53,6 @@
             "formatString": "0",
             "sourceProviderType": "int",
             "sourceLineageTag": "year",
-            "summarizeBy": "sum",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ]
-          },
-          {
-            "name": "quarter",
-            "dataType": "int64",
-            "sourceColumn": "quarter",
-            "formatString": "0",
-            "sourceProviderType": "int",
-            "sourceLineageTag": "quarter",
             "summarizeBy": "sum",
             "annotations": [
               {
@@ -150,12 +135,41 @@
             ]
           },
           {
+            "name": "quarter",
+            "dataType": "int64",
+            "sourceColumn": "quarter",
+            "formatString": "0",
+            "sourceProviderType": "int",
+            "sourceLineageTag": "quarter",
+            "summarizeBy": "sum",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ]
+          },
+          {
             "name": "is_weekend",
             "dataType": "boolean",
             "sourceColumn": "is_weekend",
             "formatString": "\"TRUE\";\"TRUE\";\"FALSE\"",
             "sourceProviderType": "bit",
             "sourceLineageTag": "is_weekend",
+            "summarizeBy": "none",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ]
+          },
+          {
+            "name": "year_month",
+            "dataType": "string",
+            "sourceColumn": "year_month",
+            "sourceProviderType": "varchar",
+            "sourceLineageTag": "year_month",
             "summarizeBy": "none",
             "annotations": [
               {
@@ -295,12 +309,12 @@
         "sourceLineageTag": "[dbo].[dm_zone]",
         "columns": [
           {
-            "name": "location_id",
+            "name": "zone_id",
             "dataType": "int64",
-            "sourceColumn": "location_id",
+            "sourceColumn": "zone_id",
             "formatString": "0",
             "sourceProviderType": "int",
-            "sourceLineageTag": "location_id",
+            "sourceLineageTag": "zone_id",
             "summarizeBy": "sum",
             "annotations": [
               {
@@ -324,11 +338,11 @@
             ]
           },
           {
-            "name": "zone",
+            "name": "zone_name",
             "dataType": "string",
-            "sourceColumn": "zone",
+            "sourceColumn": "zone_name",
             "sourceProviderType": "varchar",
-            "sourceLineageTag": "zone",
+            "sourceLineageTag": "zone_name",
             "summarizeBy": "none",
             "annotations": [
               {

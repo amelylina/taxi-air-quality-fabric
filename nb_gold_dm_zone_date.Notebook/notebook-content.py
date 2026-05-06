@@ -34,15 +34,15 @@ ZONE_TABLE = WAREHOUSE_NAME + ".dbo.dm_zone"
 ZONE_FILE = BRONZE_PATH + "/Files/reference/taxi_zone_lookup.csv"
 
 col_map = {
-    "LocationID" : "location_id",
+    "LocationID" : "zone_id",
     "Borough" : "borough",
-    "Zone" : "zone",
+    "Zone" : "zone_name",
     "Service_zone" : "service_zone"
 }
 target_types = {
-    "location_id" : "integer",
+    "zone_id" : "integer",
     "borough" : "string",
-    "zone" : "string",
+    "zone_name" : "string",
     "service_zone" : "string"
 }
 
@@ -62,22 +62,63 @@ df.write.mode("overwrite").synapsesql(f"{ZONE_TABLE}")
 
 # CELL ********************
 
-import pandas as pd
-
 DATE_TABLE = WAREHOUSE_NAME + ".dbo.dm_date"
 
-dates = pd.date_range('2023-01-01', '2024-12-31')
-dim_date = pd.DataFrame({
-    'date_key': dates.strftime('%Y%m%d').astype(int),
-    'date': dates,
-    'year': dates.year, 'quarter': dates.quarter, 'month': dates.month,
-    'day': dates.day, 'day_of_week': dates.dayofweek,
-    'day_name': dates.day_name(), 'month_name': dates.month_name(),
-    'is_weekend': dates.dayofweek >= 5,
-})
+date_dim = (spark.range(0, 4018)
+    .select((F.lit("2020-01-01").cast("date") + F.col("id").cast("int")).alias("date"))
+    .withColumn("date_key", F.date_format("date", "yyyyMMdd").cast("int"))
+    .withColumn("year", F.year("date"))
+    .withColumn("month", F.month("date"))
+    .withColumn("day", F.dayofmonth("date"))
+    .withColumn("day_of_week", F.dayofweek("date"))
+    .withColumn("day_name", F.date_format("date", "EEEE"))
+    .withColumn("month_name", F.date_format("date", "MMMM"))
+    .withColumn("quarter", F.quarter("date"))
+    .withColumn("is_weekend", F.dayofweek("date").isin(1, 7))
+    .withColumn("year_month", F.date_format("date", "yyyy-MM"))
+)
+date_dim.write.mode("overwrite").synapsesql(f"{DATE_TABLE}")
 
-spark_df = spark.createDataFrame(dim_date)
-spark_df.write.mode("overwrite").synapsesql(f"{DATE_TABLE}")
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+VENDOR_TABLE = WAREHOUSE_NAME + ".dbo.dm_vendor"
+
+vendors = [
+    (1, 'Creative Mobile Technologies, LLC'),
+    (2, 'VeriFone Inc.')
+]
+
+vendor_df = spark.createDataFrame(vendors,schema='id int, vendor_name string')
+vendor_df.write.mode("overwrite").synapsesql(f"{VENDOR_TABLE}")
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+PAYMENT_TABLE = WAREHOUSE_NAME + ".dbo.dm_payment"
+
+payments = [
+    (1, 'Credit card'),
+    (2, 'Cash'),
+    (3, 'No charge'),
+    (4, 'Dispute'),
+    (5, 'Unknown'),
+    (6, 'Voided trip')
+]
+payment_df = spark.createDataFrame(payments,schema='id int, payment_type string')
+payment_df.write.mode("overwrite").synapsesql(f"{PAYMENT_TABLE}")
 
 # METADATA ********************
 
