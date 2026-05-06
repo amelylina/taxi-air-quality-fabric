@@ -13,6 +13,103 @@
     "sourceQueryCulture": "en-US",
     "tables": [
       {
+        "name": "gold_watermark",
+        "sourceLineageTag": "[meta].[gold_watermark]",
+        "columns": [
+          {
+            "name": "gold_table_name",
+            "dataType": "string",
+            "sourceColumn": "gold_table_name",
+            "sourceProviderType": "varchar",
+            "sourceLineageTag": "gold_table_name",
+            "summarizeBy": "none",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ]
+          },
+          {
+            "name": "last_processed_silver_ts",
+            "dataType": "dateTime",
+            "sourceColumn": "last_processed_silver_ts",
+            "formatString": "General Date",
+            "sourceProviderType": "datetime2",
+            "sourceLineageTag": "last_processed_silver_ts",
+            "summarizeBy": "none",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ]
+          },
+          {
+            "name": "rows_merged",
+            "dataType": "int64",
+            "sourceColumn": "rows_merged",
+            "formatString": "0",
+            "sourceProviderType": "bigint",
+            "sourceLineageTag": "rows_merged",
+            "summarizeBy": "sum",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ]
+          },
+          {
+            "name": "pipeline_run_id",
+            "dataType": "string",
+            "sourceColumn": "pipeline_run_id",
+            "sourceProviderType": "varchar",
+            "sourceLineageTag": "pipeline_run_id",
+            "summarizeBy": "none",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ]
+          },
+          {
+            "name": "last_run_at",
+            "dataType": "dateTime",
+            "sourceColumn": "last_run_at",
+            "formatString": "General Date",
+            "sourceProviderType": "datetime2",
+            "sourceLineageTag": "last_run_at",
+            "summarizeBy": "none",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ]
+          }
+        ],
+        "partitions": [
+          {
+            "name": "{{Partition_Name}}",
+            "mode": "directLake",
+            "source": {
+              "type": "entity",
+              "entityName": "gold_watermark",
+              "expressionSource": "DatabaseQuery",
+              "schemaName": "meta"
+            }
+          }
+        ],
+        "annotations": [
+          {
+            "name": "IsTableInBiModel",
+            "value": "False"
+          }
+        ]
+      },
+      {
         "name": "ingestion_control",
         "sourceLineageTag": "[meta].[ingestion_control]",
         "columns": [

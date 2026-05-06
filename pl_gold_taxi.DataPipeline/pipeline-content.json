@@ -1,0 +1,423 @@
+{
+  "properties": {
+    "activities": [
+      {
+        "type": "Copy",
+        "typeProperties": {
+          "source": {
+            "type": "LakehouseTableSource",
+            "datasetSettings": {
+              "type": "LakehouseTable",
+              "typeProperties": {
+                "schema": "stg",
+                "table": "gold_taxi"
+              },
+              "schema": [],
+              "linkedService": {
+                "name": "lh_silver",
+                "properties": {
+                  "type": "Lakehouse",
+                  "typeProperties": {
+                    "artifactId": "306e3f15-4fb6-a05c-4787-1dba41c4f02d",
+                    "workspaceId": "00000000-0000-0000-0000-000000000000",
+                    "rootFolder": "Tables"
+                  },
+                  "annotations": []
+                }
+              },
+              "annotations": []
+            }
+          },
+          "sink": {
+            "type": "DataWarehouseSink",
+            "tableOption": "autoCreate",
+            "allowCopyCommand": true,
+            "copyCommandSettings": {},
+            "writeBehavior": "Upsert",
+            "upsertSettings": {
+              "keys": [
+                "pickup_zone_id",
+                "date_key"
+              ]
+            },
+            "datasetSettings": {
+              "type": "DataWarehouseTable",
+              "typeProperties": {
+                "schema": "dbo",
+                "table": {
+                  "value": "@variables('table_name')",
+                  "type": "Expression"
+                }
+              },
+              "schema": [],
+              "linkedService": {
+                "name": "wh_gold",
+                "properties": {
+                  "type": "DataWarehouse",
+                  "typeProperties": {
+                    "artifactId": "bba045ea-8091-45b0-a7dc-84dbbc3150e9",
+                    "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
+                    "workspaceId": "2e0a9a0f-a9ac-4770-9137-10b52d0b6df6"
+                  },
+                  "annotations": []
+                }
+              },
+              "annotations": []
+            }
+          },
+          "translator": {
+            "type": "TabularTranslator",
+            "typeConversion": true,
+            "typeConversionSettings": {
+              "allowDataTruncation": true,
+              "treatBooleanAsNumber": false
+            }
+          },
+          "enableStaging": true,
+          "enableSkipIncompatibleRow": false
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "copy_stg_to_gold",
+        "dependsOn": [
+          {
+            "activity": "load_gold_stage",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "1f17ce05-bc25-99be-4aa2-f45ff5e659c6",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "last_processed_ts": {
+              "value": {
+                "value": "@activity('get_gold_watermark').output.firstRow.last_processed_silver_ts",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "load_gold_stage",
+        "dependsOn": [
+          {
+            "activity": "get_gold_watermark",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "Lookup",
+        "typeProperties": {
+          "source": {
+            "type": "DataWarehouseSource",
+            "sqlReaderStoredProcedureName": "[meta].[get_gold_watermark]",
+            "storedProcedureParameters": {
+              "table_name": {
+                "type": "String",
+                "value": {
+                  "value": "@variables('table_name')",
+                  "type": "Expression"
+                }
+              }
+            },
+            "partitionOption": "None",
+            "queryTimeout": "02:00:00"
+          },
+          "datasetSettings": {
+            "type": "DataWarehouseTable",
+            "schema": [],
+            "linkedService": {
+              "name": "wh_meta",
+              "properties": {
+                "type": "DataWarehouse",
+                "typeProperties": {
+                  "artifactId": "c540ca12-b933-43b7-8ccd-de18e4ef323f",
+                  "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
+                  "workspaceId": "2e0a9a0f-a9ac-4770-9137-10b52d0b6df6"
+                },
+                "annotations": []
+              }
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "get_gold_watermark",
+        "dependsOn": [
+          {
+            "activity": "log_pipeline_start",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "SqlServerStoredProcedure",
+        "typeProperties": {
+          "storedProcedureName": "[meta].[log_gold_watermark]",
+          "storedProcedureParameters": {
+            "rows_merged": {
+              "value": {
+                "value": "@activity('copy_stg_to_gold').output.rowsCopied",
+                "type": "Expression"
+              },
+              "type": "Int64"
+            },
+            "run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "table_name": {
+              "value": {
+                "value": "@variables('table_name')",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "ts": {
+              "value": {
+                "value": "@activity('load_gold_stage').output.result.exitValue",
+                "type": "Expression"
+              },
+              "type": "DateTime"
+            }
+          }
+        },
+        "linkedService": {
+          "name": "wh_meta",
+          "properties": {
+            "type": "DataWarehouse",
+            "typeProperties": {
+              "artifactId": "c540ca12-b933-43b7-8ccd-de18e4ef323f",
+              "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
+              "workspaceId": "2e0a9a0f-a9ac-4770-9137-10b52d0b6df6"
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "log_gold_watermark",
+        "dependsOn": [
+          {
+            "activity": "copy_stg_to_gold",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "SqlServerStoredProcedure",
+        "typeProperties": {
+          "storedProcedureName": "[meta].[log_pipeline_start]",
+          "storedProcedureParameters": {
+            "layer": {
+              "value": "gold",
+              "type": "String"
+            },
+            "pipeline_name": {
+              "value": {
+                "value": "@pipeline().PipelineName",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "String"
+            }
+          }
+        },
+        "linkedService": {
+          "name": "wh_meta",
+          "properties": {
+            "type": "DataWarehouse",
+            "typeProperties": {
+              "artifactId": "c540ca12-b933-43b7-8ccd-de18e4ef323f",
+              "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
+              "workspaceId": "2e0a9a0f-a9ac-4770-9137-10b52d0b6df6"
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "log_pipeline_start",
+        "dependsOn": []
+      },
+      {
+        "type": "SqlServerStoredProcedure",
+        "typeProperties": {
+          "storedProcedureName": "[meta].[log_pipeline_update]",
+          "storedProcedureParameters": {
+            "message": {
+              "value": {
+                "value": "@concat('Loaded ', activity('copy_stg_to_gold').output.rowsCopied, ' rows into gold')",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "status": {
+              "value": "succeeded",
+              "type": "String"
+            }
+          }
+        },
+        "linkedService": {
+          "name": "wh_meta",
+          "properties": {
+            "type": "DataWarehouse",
+            "typeProperties": {
+              "artifactId": "c540ca12-b933-43b7-8ccd-de18e4ef323f",
+              "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
+              "workspaceId": "2e0a9a0f-a9ac-4770-9137-10b52d0b6df6"
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "log_pipeline_succeeded",
+        "dependsOn": [
+          {
+            "activity": "log_gold_watermark",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "SqlServerStoredProcedure",
+        "typeProperties": {
+          "storedProcedureName": "[meta].[log_pipeline_update]",
+          "storedProcedureParameters": {
+            "message": {
+              "value": null,
+              "type": "String"
+            },
+            "run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "status": {
+              "value": "failed",
+              "type": "String"
+            }
+          }
+        },
+        "linkedService": {
+          "name": "wh_meta",
+          "properties": {
+            "type": "DataWarehouse",
+            "typeProperties": {
+              "artifactId": "c540ca12-b933-43b7-8ccd-de18e4ef323f",
+              "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
+              "workspaceId": "2e0a9a0f-a9ac-4770-9137-10b52d0b6df6"
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "log_pipeline_failed",
+        "dependsOn": [
+          {
+            "activity": "log_gold_watermark",
+            "dependencyConditions": [
+              "Failed"
+            ]
+          },
+          {
+            "activity": "copy_stg_to_gold",
+            "dependencyConditions": [
+              "Failed"
+            ]
+          },
+          {
+            "activity": "load_gold_stage",
+            "dependencyConditions": [
+              "Failed"
+            ]
+          },
+          {
+            "activity": "get_gold_watermark",
+            "dependencyConditions": [
+              "Failed"
+            ]
+          }
+        ]
+      }
+    ],
+    "variables": {
+      "table_name": {
+        "type": "String",
+        "defaultValue": "fct_taxi_daily"
+      }
+    }
+  }
+}
