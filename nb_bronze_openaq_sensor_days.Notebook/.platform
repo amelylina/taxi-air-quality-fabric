@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Notebook",
+    "displayName": "nb_bronze_openaq_sensor_days"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "50c3c246-c78c-bdf3-4ab9-27e9fc115f82"
+  }
+}

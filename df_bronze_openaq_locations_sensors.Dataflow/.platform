@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Dataflow",
+    "displayName": "df_bronze_openaq_locations_sensors"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "84fd191d-1f1d-9e3b-4427-86c2fba264a0"
+  }
+}

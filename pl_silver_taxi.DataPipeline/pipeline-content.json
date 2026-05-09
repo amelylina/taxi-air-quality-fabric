@@ -219,13 +219,75 @@
         "name": "log_pipeline_failed",
         "dependsOn": [
           {
-            "activity": "silver_parsing_loading",
+            "activity": "claim_meta_silver_running",
             "dependencyConditions": [
               "Failed"
             ]
           },
           {
-            "activity": "claim_meta_silver_running",
+            "activity": "update_meta_silver_failed",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "SqlServerStoredProcedure",
+        "typeProperties": {
+          "storedProcedureName": "[meta].[update_ingestion_control]",
+          "storedProcedureParameters": {
+            "error_message": {
+              "value": {
+                "value": "@activity('silver_parsing_loading').error.message",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "layer": {
+              "value": "silver",
+              "type": "String"
+            },
+            "new_status": {
+              "value": "failed",
+              "type": "String"
+            },
+            "old_status": {
+              "value": "running",
+              "type": "String"
+            },
+            "source_name": {
+              "value": {
+                "value": "@pipeline().libraryVariables.yellow_taxi",
+                "type": "Expression"
+              },
+              "type": "String"
+            }
+          }
+        },
+        "linkedService": {
+          "name": "wh_meta",
+          "properties": {
+            "type": "DataWarehouse",
+            "typeProperties": {
+              "artifactId": "c540ca12-b933-43b7-8ccd-de18e4ef323f",
+              "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
+              "workspaceId": "2e0a9a0f-a9ac-4770-9137-10b52d0b6df6"
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "update_meta_silver_failed",
+        "dependsOn": [
+          {
+            "activity": "silver_parsing_loading",
             "dependencyConditions": [
               "Failed"
             ]
