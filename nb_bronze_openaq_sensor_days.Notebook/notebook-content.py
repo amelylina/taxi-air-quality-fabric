@@ -23,9 +23,7 @@
 # PARAMETERS CELL ********************
 
 DATE_FROM = "2023-01-01"
-DATE_TO   = "2023-12-31"
-MAX_WORKERS = 10
-CHUNK_MONTHS = 4
+DATE_TO   = "2023-06-30"
 
 # METADATA ********************
 
@@ -36,24 +34,75 @@ CHUNK_MONTHS = 4
 
 # CELL ********************
 
-import requests
 import random
+import threading
 import time
+from collections import deque
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date
+import requests
 from dateutil.relativedelta import relativedelta
 from pyspark.sql import functions as F
+from pyspark.sql.types import StructType, StructField, StringType, DoubleType, IntegerType, LongType
 
-API_KEY = mssparkutils.credentials.getSecret(
-    "https://fabric-project.vault.azure.net/",
-    "openaq-key"
-)
-HEADERS = {"X-API-Key": API_KEY, "Accept": "application/json"}
+MAX_WORKERS = 5
+CHUNK_MONTHS = 1
+RATE_LIMIT_PER_MINUTE = 50
+PAGE_LIMIT = 1000
+
 BASE = "https://api.openaq.org/v3"
 PRIORITY_PARAMS = {"pm25", "no2", "o3", "co", "pm10"}
+
 LOC_TABLE = "lh_bronze.dbo.openaq_locations"
 TARGET_TABLE = "lh_bronze.dbo.openaq_measurements_daily"
-PAGE_LIMIT = 1000
+LOG_TABLE  = "lh_bronze.dbo.openaq_load_log"
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+def get_headers():
+    api_key = mssparkutils.credentials.getSecret(
+        "https://fabric-project.vault.azure.net/",
+        "openaq-key",
+    )
+    return {"X-API-Key": api_key, "Accept": "application/json"}
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+class RateLimiter:
+    def __init__(self, max_calls: int, period_sec: float = 60.0):
+        self.max_calls = max_calls
+        self.period = period_sec
+        self.calls = deque()
+        self.lock = threading.Lock()
+
+    def acquire(self):
+        while True:
+            with self.lock:
+                now = time.monotonic()
+                while self.calls and now - self.calls[0] >= self.period:
+                    self.calls.popleft()
+                if len(self.calls) < self.max_calls:
+                    self.calls.append(now)
+                    return
+                sleep_for = self.period - (now - self.calls[0])
+            time.sleep(max(sleep_for, 0.05))
+ 
+ 
+_RATE_LIMITER = RateLimiter(RATE_LIMIT_PER_MINUTE)
 
 # METADATA ********************
 
@@ -74,28 +123,45 @@ def month_chunks(date_from: str, date_to: str, months: int = 1):
         cur = nxt + relativedelta(days=1)
 
 
-def request_with_retry(url, params, max_attempts=5):
+def request_with_retry(url, params, headers, max_attempts=8):
+    last_status = None
+    last_exc = None
     for attempt in range(max_attempts):
-        r = requests.get(url, headers=HEADERS, params=params, timeout=90)
+        _RATE_LIMITER.acquire()
+        try:
+            r = requests.get(url, headers=headers, params=params, timeout=90)
+        except (requests.ConnectionError, requests.Timeout) as e:
+            last_exc = e
+            wait = min(2 ** attempt, 60)
+            time.sleep(random.uniform(0, wait))
+            continue
+ 
+        last_status = r.status_code
         if r.status_code == 200:
             return r.json()
+ 
         if r.status_code in (408, 429, 500, 502, 503, 504):
             retry_after = r.headers.get("Retry-After", "")
             try:
-                wait = int(retry_after) + random.uniform(0, 1)
+                base_wait = int(retry_after)
             except (ValueError, TypeError):
-                wait = 2 ** attempt + random.uniform(0, 1)
-
-            time.sleep(wait)
+                base_wait = min(2 ** attempt, 60)
+            time.sleep(random.uniform(0, base_wait if base_wait > 0 else 1))
             continue
+
         r.raise_for_status()
-    raise RuntimeError(f"Exhausted retries for {url} (last status {r.status_code})")
+ 
+    raise RuntimeError(
+        f"Exhausted retries for {url} "
+        f"(last status {last_status}, last exc {last_exc})"
+    )
 
-
-def get_paginated(url, params):
+def get_paginated(url, params, headers):
     out, page = [], 1
     while True:
-        data = request_with_retry(url, {**params, "limit": PAGE_LIMIT, "page": page})
+        data = request_with_retry(
+            url, {**params, "limit": PAGE_LIMIT, "page": page}, headers
+        )
         results = data.get("results", [])
         out.extend(results)
         if len(results) < PAGE_LIMIT:
@@ -104,10 +170,11 @@ def get_paginated(url, params):
     return out
 
 
-def fetch_sensor_chunk(job, chunk_from, chunk_to):
+def fetch_sensor_chunk(job, chunk_from, chunk_to, headers):
     rows = get_paginated(
         f"{BASE}/sensors/{job['sensor_id']}/days",
-        {"date_from": chunk_from, "date_to": chunk_to}
+        {"date_from": chunk_from, "date_to": chunk_to},
+        headers,
     )
     return [{
         "sensor_id": job["sensor_id"],
@@ -132,14 +199,28 @@ def fetch_sensor_chunk(job, chunk_from, chunk_to):
 
 # CELL ********************
 
-sensor_jobs = (
-    spark.read.table(LOC_TABLE)
-    .filter(F.lower(F.col("p_name")).isin(PRIORITY_PARAMS))
-    .filter(F.col("last_datetime_utc") >= DATE_FROM)
-    .select("sensor_id", "location_id", "p_name", "p_units")
-    .collect()
-)
-print(len(sensor_jobs))
+ROW_SCHEMA = StructType([
+StructField("sensor_id", LongType(), True),
+StructField("location_id", LongType(), True),
+StructField("parameter", StringType(), True),
+StructField("units", StringType(), True),
+StructField("date_utc", StringType(), True),
+StructField("value", DoubleType(), True),
+StructField("min_val", DoubleType(), True),
+StructField("max_val", DoubleType(), True),
+StructField("median_val", DoubleType(), True),
+StructField("coverage_pct", DoubleType(), True),
+StructField("expected_count", IntegerType(), True),
+])
+
+def load_sensor_jobs(spark):
+    return (
+        spark.read.table(LOC_TABLE)
+        .filter(F.lower(F.col("p_name")).isin(PRIORITY_PARAMS))
+        .filter(F.col("last_datetime_utc") >= F.lit(DATE_FROM).cast("timestamp"))
+        .select("sensor_id", "location_id", "p_name", "p_units")
+        .collect()
+    )
 
 # METADATA ********************
 
@@ -150,39 +231,81 @@ print(len(sensor_jobs))
 
 # CELL ********************
 
+def write_chunk(spark, rows, chunk_from, chunk_to):
+    if not rows:
+        return 0
+
+    df = (
+        spark.createDataFrame(rows, schema=ROW_SCHEMA)
+        .withColumn("date_utc", F.to_date("date_utc"))
+        .withColumn("year", F.year("date_utc"))
+        .withColumn("month", F.month("date_utc"))
+        .withColumn("loaded_at",  F.current_timestamp())
+    )
+
+    (
+    df.write
+        .format("delta")
+        .mode("append")
+        .partitionBy("loaded_at")
+        .saveAsTable(TARGET_TABLE)
+    )
+
+    return df.count()
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+def log_chunk_result(spark, chunk_from, chunk_to, n_ok, n_failed, failed_sample):
+    log_df = spark.createDataFrame(
+        [(chunk_from, chunk_to, n_ok, n_failed, str(failed_sample[:5]))],
+        "chunk_from string, chunk_to string, sensors_ok int, sensors_failed int, failed_sample string",
+    ).withColumn("logged_at", F.current_timestamp())
+    log_df.write.format("delta").mode("append").saveAsTable(LOG_TABLE)
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+headers = get_headers()
+sensor_jobs = load_sensor_jobs(spark)
+print(f"sensors to load: {len(sensor_jobs)}")
+
 for chunk_from, chunk_to in month_chunks(DATE_FROM, DATE_TO, CHUNK_MONTHS):
+    print(f"chunk {chunk_from} -> {chunk_to}")
     rows = []
     failed = []
 
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
-        futures = {ex.submit(fetch_sensor_chunk, j, chunk_from, chunk_to): j for j in sensor_jobs}
+        futures = {
+            ex.submit(fetch_sensor_chunk, j, chunk_from, chunk_to, headers): j
+            for j in sensor_jobs
+        }
         for f in as_completed(futures):
             job = futures[f]
             try:
                 rows.extend(f.result())
             except Exception as e:
-                failed.append((job["sensor_id"], str(e)))
+                failed.append((job["sensor_id"], type(e).__name__, str(e)[:200]))
 
+    n_ok = len(sensor_jobs) - len(failed)
     if failed:
-        print(f"  {len(failed)} sensors failed in this chunk; first 3: {failed[:3]}")
+        print(f"  {len(failed)} sensors failed in this chunk")
 
-    if not rows:
-        print("  no rows returned, skipping write")
-        continue
-
-    df = (
-        spark.createDataFrame(rows)
-        .withColumn("date",  F.to_date("date_utc"))
-        .withColumn("year",  F.year("date"))
-        .withColumn("month", F.month("date"))
-    )
-
-    (df.write
-        .format("delta")
-        .mode("overwrite")
-        .option("partitionOverwriteMode", "dynamic")
-        .partitionBy("parameter", "year", "month")
-        .saveAsTable(TARGET_TABLE))
+    n_written = write_chunk(spark, rows, chunk_from, chunk_to)
+    print(f"  merged {n_written} rows into {TARGET_TABLE}")
+    log_chunk_result(spark, chunk_from, chunk_to, n_ok, len(failed), failed)
 
 # METADATA ********************
 
