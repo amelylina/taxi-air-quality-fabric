@@ -6,6 +6,12 @@
       "note": "",
       "type": "String",
       "value": "TLC_yellow_taxi"
+    },
+    {
+      "name": "openaq",
+      "note": "",
+      "type": "String",
+      "value": "openaq_nyc_daily"
     }
   ]
 }

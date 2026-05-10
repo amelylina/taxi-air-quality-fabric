@@ -16,34 +16,37 @@
 # META           "id": "c4c9cf64-1667-4152-bd26-12854382cfbe"
 # META         }
 # META       ]
+# META     },
+# META     "environment": {
+# META       "environmentId": "465e8bc1-939a-9227-4dc4-5b5c6bda6737",
+# META       "workspaceId": "00000000-0000-0000-0000-000000000000"
 # META     }
 # META   }
 # META }
 
-# PARAMETERS CELL ********************
-
-DATE_FROM = "2023-01-01"
-DATE_TO   = "2023-06-30"
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
 # CELL ********************
 
+import json
 import random
 import threading
 import time
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date
-import requests
 from dateutil.relativedelta import relativedelta
+import requests
 from pyspark.sql import functions as F
 from pyspark.sql.types import StructType, StructField, StringType, DoubleType, IntegerType, LongType
+from wh_conn import get_con, check_con
+
+SERVER_NAME = notebookutils.variableLibrary.getLibrary('storage_lib').server_url
+WAREHOUSE_NAME = 'wh_meta'
+SOURCE_NAME = notebookutils.variableLibrary.getLibrary('bronze_source_names').openaq
+API_KEY = mssparkutils.credentials.getSecret(
+    "https://fabric-project.vault.azure.net/",
+    "openaq-key",
+)
+HEADERS = {"X-API-Key": API_KEY, "Accept": "application/json"}
 
 MAX_WORKERS = 5
 CHUNK_MONTHS = 1
@@ -55,23 +58,6 @@ PRIORITY_PARAMS = {"pm25", "no2", "o3", "co", "pm10"}
 
 LOC_TABLE = "lh_bronze.dbo.openaq_locations"
 TARGET_TABLE = "lh_bronze.dbo.openaq_measurements_daily"
-LOG_TABLE  = "lh_bronze.dbo.openaq_load_log"
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
-def get_headers():
-    api_key = mssparkutils.credentials.getSecret(
-        "https://fabric-project.vault.azure.net/",
-        "openaq-key",
-    )
-    return {"X-API-Key": api_key, "Accept": "application/json"}
 
 # METADATA ********************
 
@@ -113,15 +99,10 @@ _RATE_LIMITER = RateLimiter(RATE_LIMIT_PER_MINUTE)
 
 # CELL ********************
 
-def month_chunks(date_from: str, date_to: str, months: int = 1):
-    start = date.fromisoformat(date_from)
-    end = date.fromisoformat(date_to)
-    cur = start
-    while cur <= end:
-        nxt = min(cur + relativedelta(months=months) - relativedelta(days=1), end)
-        yield cur.isoformat(), nxt.isoformat()
-        cur = nxt + relativedelta(days=1)
-
+def get_month_range(pk):
+    start = date.fromisoformat(pk + "-01")
+    end = (start + relativedelta(months=1)) - relativedelta(days=1)
+    return start.isoformat(), end.isoformat()
 
 def request_with_retry(url, params, headers, max_attempts=8):
     last_status = None
@@ -169,7 +150,6 @@ def get_paginated(url, params, headers):
         page += 1
     return out
 
-
 def fetch_sensor_chunk(job, chunk_from, chunk_to, headers):
     rows = get_paginated(
         f"{BASE}/sensors/{job['sensor_id']}/days",
@@ -200,36 +180,18 @@ def fetch_sensor_chunk(job, chunk_from, chunk_to, headers):
 # CELL ********************
 
 ROW_SCHEMA = StructType([
-StructField("sensor_id", LongType(), True),
-StructField("location_id", LongType(), True),
-StructField("parameter", StringType(), True),
-StructField("units", StringType(), True),
-StructField("date_utc", StringType(), True),
-StructField("value", DoubleType(), True),
-StructField("min_val", DoubleType(), True),
-StructField("max_val", DoubleType(), True),
-StructField("median_val", DoubleType(), True),
-StructField("coverage_pct", DoubleType(), True),
-StructField("expected_count", IntegerType(), True),
+    StructField("sensor_id", LongType(), True),
+    StructField("location_id", LongType(), True),
+    StructField("parameter", StringType(), True),
+    StructField("units", StringType(), True),
+    StructField("date_utc", StringType(), True),
+    StructField("value", DoubleType(), True),
+    StructField("min_val", DoubleType(), True),
+    StructField("max_val", DoubleType(), True),
+    StructField("median_val", DoubleType(), True),
+    StructField("coverage_pct", DoubleType(), True),
+    StructField("expected_count", IntegerType(), True),
 ])
-
-def load_sensor_jobs(spark):
-    return (
-        spark.read.table(LOC_TABLE)
-        .filter(F.lower(F.col("p_name")).isin(PRIORITY_PARAMS))
-        .filter(F.col("last_datetime_utc") >= F.lit(DATE_FROM).cast("timestamp"))
-        .select("sensor_id", "location_id", "p_name", "p_units")
-        .collect()
-    )
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
 
 def write_chunk(spark, rows, chunk_from, chunk_to):
     if not rows:
@@ -241,13 +203,14 @@ def write_chunk(spark, rows, chunk_from, chunk_to):
         .withColumn("year", F.year("date_utc"))
         .withColumn("month", F.month("date_utc"))
         .withColumn("loaded_at",  F.current_timestamp())
+        .withColumn("load_date", F.to_date("loaded_at"))
     )
 
     (
     df.write
         .format("delta")
         .mode("append")
-        .partitionBy("loaded_at")
+        .partitionBy("load_date")
         .saveAsTable(TARGET_TABLE)
     )
 
@@ -262,12 +225,31 @@ def write_chunk(spark, rows, chunk_from, chunk_to):
 
 # CELL ********************
 
-def log_chunk_result(spark, chunk_from, chunk_to, n_ok, n_failed, failed_sample):
-    log_df = spark.createDataFrame(
-        [(chunk_from, chunk_to, n_ok, n_failed, str(failed_sample[:5]))],
-        "chunk_from string, chunk_to string, sensors_ok int, sensors_failed int, failed_sample string",
-    ).withColumn("logged_at", F.current_timestamp())
-    log_df.write.format("delta").mode("append").saveAsTable(LOG_TABLE)
+conn = get_con(SERVER_NAME, WAREHOUSE_NAME)
+try:
+    with conn.cursor() as cur:
+        cur.execute ("""
+            SELECT partition_key
+            FROM meta.ingestion_control
+            WHERE source_name = ?
+            AND status = 'running'
+            ORDER BY partition_key
+        """, (SOURCE_NAME,))
+        partition_keys = [row[0] for row in cur.fetchall()]
+
+    if not partition_keys:
+        mssparkutils.notebook.exit({"status": "succeeded", "partitions_processed": 0})
+except Exception:
+    conn.close()
+    raise
+
+all_sensors = (
+    spark.read.table(LOC_TABLE)
+    .filter(F.lower(F.col("p_name")).isin(PRIORITY_PARAMS))
+    .select("sensor_id", "location_id", "p_name", "p_units",
+            "first_datetime_utc", "last_datetime_utc")
+    .collect()
+)
 
 # METADATA ********************
 
@@ -278,18 +260,24 @@ def log_chunk_result(spark, chunk_from, chunk_to, n_ok, n_failed, failed_sample)
 
 # CELL ********************
 
-headers = get_headers()
-sensor_jobs = load_sensor_jobs(spark)
-print(f"sensors to load: {len(sensor_jobs)}")
+from datetime import datetime
 
-for chunk_from, chunk_to in month_chunks(DATE_FROM, DATE_TO, CHUNK_MONTHS):
-    print(f"chunk {chunk_from} -> {chunk_to}")
+results: list[dict] = []
+for partition in partition_keys:
+    chunk_from, chunk_to = get_month_range(partition)
+
+    sensor_jobs = [
+        s for s in all_sensors
+        if s["last_datetime_utc"]  is not None and s["last_datetime_utc"]  >= datetime.fromisoformat(chunk_from)
+        and s["first_datetime_utc"] is not None and s["first_datetime_utc"] <= datetime.fromisoformat(chunk_to)
+    ]
+
     rows = []
     failed = []
 
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
         futures = {
-            ex.submit(fetch_sensor_chunk, j, chunk_from, chunk_to, headers): j
+            ex.submit(fetch_sensor_chunk, j, chunk_from, chunk_to, HEADERS): j
             for j in sensor_jobs
         }
         for f in as_completed(futures):
@@ -299,13 +287,82 @@ for chunk_from, chunk_to in month_chunks(DATE_FROM, DATE_TO, CHUNK_MONTHS):
             except Exception as e:
                 failed.append((job["sensor_id"], type(e).__name__, str(e)[:200]))
 
-    n_ok = len(sensor_jobs) - len(failed)
-    if failed:
-        print(f"  {len(failed)} sensors failed in this chunk")
+    try:
+        n_written = write_chunk(spark, rows, chunk_from, chunk_to)
 
-    n_written = write_chunk(spark, rows, chunk_from, chunk_to)
-    print(f"  merged {n_written} rows into {TARGET_TABLE}")
-    log_chunk_result(spark, chunk_from, chunk_to, n_ok, len(failed), failed)
+        if sensor_jobs and not rows and failed:
+            results.append({
+                'source_name' : SOURCE_NAME,
+                'partition_key' : partition,
+                'layer' : 'bronze',
+                'status': 'failed', 
+                'rows_written': 0,
+                'error_message': json.dumps({
+                    "reason": "all sensors failed",
+                    "failed_count": len(failed),
+                    "failed_sample": failed[:5],
+                })
+            })
+            continue
+
+        err_summary = None
+        if failed:
+            err_summary = json.dumps({
+                "failed_sensor_count": len(failed),
+                "failed_sample": failed[:5],
+            })
+
+        results.append({
+            'source_name' : SOURCE_NAME, 
+            'partition_key': partition,
+            'layer' : 'bronze',
+            'status': "succeeded", 
+            'rows_written' : n_written, 
+            'error_message' : err_summary
+        })
+    except Exception as e:
+        results.append({
+            'source_name' : SOURCE_NAME, 
+            'partition_key': partition, 
+            'layer' : 'bronze',
+            'status': "failed", 
+            'rows_written' : 0, 
+            'error_message' : f"write_chunk error: {e}"
+        })
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+if not check_con(conn):
+    conn = get_con(SERVER_NAME, WAREHOUSE_NAME)
+
+try:
+    with conn.cursor() as cur:
+        cur.executemany(
+            "EXEC meta.update_partition_status "
+            "@source_name=%(source_name)s, @partition_key=%(partition_key)s, @layer=%(layer)s, "
+            "@new_status=%(status)s, @rows_written=%(rows_written)s, @error_message=%(error_message)s",
+            results
+        )
+    conn.commit()
+finally:
+    conn.close()
+
+succeeded = [r for r in results if r.get('status') == "succeeded"]
+failed_p = [r for r in results if r.get('status') == "failed"]
+mssparkutils.notebook.exit(json.dumps({
+    "status": "succeeded" if not failed_p else "partial_failure",
+    "succeeded_count": len(succeeded),
+    "failed_count": len(failed_p),
+    "total_rows": sum(r.get('rows_written') or 0 for r in succeeded),
+    "log_msg": f"OpenAQ bronze: {len(succeeded)} ok, {len(failed_p)} failed",
+}))
 
 # METADATA ********************
 

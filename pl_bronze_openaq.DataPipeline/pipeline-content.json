@@ -4,8 +4,12 @@
       {
         "type": "TridentNotebook",
         "typeProperties": {
-          "notebookId": "c537e19a-26b7-aa3e-4cd3-22d783ad6eeb",
-          "workspaceId": "00000000-0000-0000-0000-000000000000"
+          "notebookId": "50c3c246-c78c-bdf3-4ab9-27e9fc115f82",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "sessionTag": {
+            "value": "@pipeline().PipelineName",
+            "type": "Expression"
+          }
         },
         "policy": {
           "timeout": "0.12:00:00",
@@ -14,10 +18,10 @@
           "secureInput": false,
           "secureOutput": false
         },
-        "name": "silver_parsing_loading",
+        "name": "nb_bronze_openaq_measurements",
         "dependsOn": [
           {
-            "activity": "claim_meta_silver_running",
+            "activity": "meta_claim_running",
             "dependencyConditions": [
               "Succeeded"
             ]
@@ -37,12 +41,12 @@
               "type": "String"
             },
             "limit": {
-              "value": null,
+              "value": "3",
               "type": "Int32"
             },
             "source_name": {
               "value": {
-                "value": "@pipeline().libraryVariables.yellow_taxi",
+                "value": "@pipeline().libraryVariables.openaq",
                 "type": "Expression"
               },
               "type": "String"
@@ -68,7 +72,7 @@
           "secureInput": false,
           "secureOutput": false
         },
-        "name": "claim_meta_silver_running",
+        "name": "meta_claim_running",
         "dependsOn": [
           {
             "activity": "log_pipeline_start",
@@ -134,63 +138,6 @@
           "storedProcedureName": "[meta].[log_pipeline_update]",
           "storedProcedureParameters": {
             "message": {
-              "value": {
-                "value": "@{json(activity('silver_parsing_loading').output.result.exitValue).log_msg}",
-                "type": "Expression"
-              },
-              "type": "String"
-            },
-            "run_id": {
-              "value": {
-                "value": "@pipeline().RunId",
-                "type": "Expression"
-              },
-              "type": "String"
-            },
-            "status": {
-              "value": {
-                "value": "@{json(activity('silver_parsing_loading').output.result.exitValue).status}",
-                "type": "Expression"
-              },
-              "type": "String"
-            }
-          }
-        },
-        "linkedService": {
-          "name": "wh_meta",
-          "properties": {
-            "type": "DataWarehouse",
-            "typeProperties": {
-              "artifactId": "c540ca12-b933-43b7-8ccd-de18e4ef323f",
-              "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
-              "workspaceId": "2e0a9a0f-a9ac-4770-9137-10b52d0b6df6"
-            },
-            "annotations": []
-          }
-        },
-        "policy": {
-          "timeout": "0.12:00:00",
-          "retry": 0,
-          "retryIntervalInSeconds": 30,
-          "secureInput": false,
-          "secureOutput": false
-        },
-        "name": "log_pipeline_succeeded",
-        "dependsOn": [
-          {
-            "activity": "silver_parsing_loading",
-            "dependencyConditions": [
-              "Succeeded"
-            ]
-          }
-        ]
-      },
-      {
-        "type": "SqlServerStoredProcedure",
-        "typeProperties": {
-          "storedProcedureName": "[meta].[log_pipeline_update]",
-          "storedProcedureParameters": {
-            "message": {
               "value": null,
               "type": "String"
             },
@@ -229,13 +176,13 @@
         "name": "log_pipeline_failed",
         "dependsOn": [
           {
-            "activity": "claim_meta_silver_running",
+            "activity": "meta_claim_running",
             "dependencyConditions": [
               "Failed"
             ]
           },
           {
-            "activity": "meta_mark_bulk_failed",
+            "activity": "meta_bulk_mark_failed",
             "dependencyConditions": [
               "Completed"
             ]
@@ -245,29 +192,25 @@
       {
         "type": "SqlServerStoredProcedure",
         "typeProperties": {
-          "storedProcedureName": "[meta].[bulk_reset_running]",
+          "storedProcedureName": "[meta].[log_pipeline_update]",
           "storedProcedureParameters": {
-            "error_message": {
+            "message": {
               "value": {
-                "value": "@activity('silver_parsing_loading').error.message",
+                "value": "@{json(activity('nb_bronze_openaq_measurements').output.result.exitValue).log_msg}",
                 "type": "Expression"
               },
               "type": "String"
             },
-            "layer": {
+            "run_id": {
               "value": {
-                "value": "@variables('layer')",
+                "value": "@pipeline().RunId",
                 "type": "Expression"
               },
               "type": "String"
             },
-            "new_status": {
-              "value": "failed",
-              "type": "String"
-            },
-            "source_name": {
+            "status": {
               "value": {
-                "value": "@pipeline().libraryVariables.yellow_taxi",
+                "value": "@{json(activity('nb_bronze_openaq_measurements').output.result.exitValue).status}",
                 "type": "Expression"
               },
               "type": "String"
@@ -293,10 +236,71 @@
           "secureInput": false,
           "secureOutput": false
         },
-        "name": "meta_mark_bulk_failed",
+        "name": "log_pipeline_succeeded",
         "dependsOn": [
           {
-            "activity": "silver_parsing_loading",
+            "activity": "nb_bronze_openaq_measurements",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "SqlServerStoredProcedure",
+        "typeProperties": {
+          "storedProcedureName": "[meta].[bulk_reset_running]",
+          "storedProcedureParameters": {
+            "error_message": {
+              "value": {
+                "value": "@activity('nb_bronze_openaq_measurements').error.message",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "layer": {
+              "value": {
+                "value": "@variables('layer')",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "new_status": {
+              "value": "failed",
+              "type": "String"
+            },
+            "source_name": {
+              "value": {
+                "value": "@pipeline().libraryVariables.openaq",
+                "type": "Expression"
+              },
+              "type": "String"
+            }
+          }
+        },
+        "linkedService": {
+          "name": "wh_meta",
+          "properties": {
+            "type": "DataWarehouse",
+            "typeProperties": {
+              "artifactId": "c540ca12-b933-43b7-8ccd-de18e4ef323f",
+              "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
+              "workspaceId": "2e0a9a0f-a9ac-4770-9137-10b52d0b6df6"
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "meta_bulk_mark_failed",
+        "dependsOn": [
+          {
+            "activity": "nb_bronze_openaq_measurements",
             "dependencyConditions": [
               "Failed"
             ]
@@ -305,16 +309,16 @@
       }
     ],
     "libraryVariables": {
-      "yellow_taxi": {
+      "openaq": {
         "type": "String",
-        "variableName": "yellow_taxi",
+        "variableName": "openaq",
         "libraryName": "bronze_source_names"
       }
     },
     "variables": {
       "layer": {
         "type": "String",
-        "defaultValue": "silver"
+        "defaultValue": "bronze"
       }
     },
     "concurrency": 1

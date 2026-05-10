@@ -6,8 +6,15 @@
         "typeProperties": {
           "source": {
             "type": "DataWarehouseSource",
-            "sqlReaderStoredProcedureName": "[meta].[get_bronze_pending]",
+            "sqlReaderStoredProcedureName": "[meta].[get_pending]",
             "storedProcedureParameters": {
+              "layer": {
+                "type": "String",
+                "value": {
+                  "value": "@variables('layer')",
+                  "type": "Expression"
+                }
+              },
               "limit": {
                 "type": "Int32",
                 "value": "12"
@@ -68,42 +75,6 @@
             "type": "Expression"
           },
           "activities": [
-            {
-              "type": "Script",
-              "typeProperties": {
-                "scripts": [
-                  {
-                    "text": {
-                      "value": "UPDATE meta.ingestion_control\n  SET status = 'running',\n      started_at = CURRENT_TIMESTAMP,\n      ended_at = NULL,\n      error_message = NULL\n  WHERE source_name = '@{item().source_name}'\n    AND partition_key = '@{item().partition_key}'",
-                      "type": "Expression"
-                    },
-                    "type": "NonQuery"
-                  }
-                ],
-                "scriptBlockExecutionTimeout": "02:00:00"
-              },
-              "linkedService": {
-                "name": "wh_meta",
-                "properties": {
-                  "type": "DataWarehouse",
-                  "typeProperties": {
-                    "artifactId": "c540ca12-b933-43b7-8ccd-de18e4ef323f",
-                    "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
-                    "workspaceId": "2e0a9a0f-a9ac-4770-9137-10b52d0b6df6"
-                  },
-                  "annotations": []
-                }
-              },
-              "policy": {
-                "timeout": "0.12:00:00",
-                "retry": 0,
-                "retryIntervalInSeconds": 30,
-                "secureInput": false,
-                "secureOutput": false
-              },
-              "name": "mark_running",
-              "dependsOn": []
-            },
             {
               "type": "Copy",
               "typeProperties": {
@@ -180,7 +151,7 @@
               "name": "copy_parquet_to_bronze",
               "dependsOn": [
                 {
-                  "activity": "mark_running",
+                  "activity": "mark_partition_running",
                   "dependencyConditions": [
                     "Succeeded"
                   ]
@@ -188,18 +159,48 @@
               ]
             },
             {
-              "type": "Script",
+              "type": "SqlServerStoredProcedure",
               "typeProperties": {
-                "scripts": [
-                  {
-                    "text": {
-                      "value": "UPDATE meta.ingestion_control\n  SET status = 'succeeded',\n    silver_status='pending',\n      ended_at = CURRENT_TIMESTAMP,\n      error_message = NULL\n  WHERE source_name = '@{item().source_name}'\n    AND partition_key = '@{item().partition_key}'",
+                "storedProcedureName": "[meta].[update_partition_status]",
+                "storedProcedureParameters": {
+                  "cascade_silver_pending": {
+                    "value": "False",
+                    "type": "Boolean"
+                  },
+                  "error_message": {
+                    "value": null,
+                    "type": "String"
+                  },
+                  "layer": {
+                    "value": {
+                      "value": "@variables('layer')",
                       "type": "Expression"
                     },
-                    "type": "NonQuery"
+                    "type": "String"
+                  },
+                  "new_status": {
+                    "value": "running",
+                    "type": "String"
+                  },
+                  "partition_key": {
+                    "value": {
+                      "value": "@item().partition_key",
+                      "type": "Expression"
+                    },
+                    "type": "String"
+                  },
+                  "rows_written": {
+                    "value": null,
+                    "type": "Int64"
+                  },
+                  "source_name": {
+                    "value": {
+                      "value": "@item().source_name",
+                      "type": "Expression"
+                    },
+                    "type": "String"
                   }
-                ],
-                "scriptBlockExecutionTimeout": "02:00:00"
+                }
               },
               "linkedService": {
                 "name": "wh_meta",
@@ -220,29 +221,52 @@
                 "secureInput": false,
                 "secureOutput": false
               },
-              "name": "mark_succeeded",
-              "dependsOn": [
-                {
-                  "activity": "copy_parquet_to_bronze",
-                  "dependencyConditions": [
-                    "Succeeded"
-                  ]
-                }
-              ]
+              "name": "mark_partition_running",
+              "dependsOn": []
             },
             {
-              "type": "Script",
+              "type": "SqlServerStoredProcedure",
               "typeProperties": {
-                "scripts": [
-                  {
-                    "text": {
-                      "value": "UPDATE meta.ingestion_control\n  SET status = 'failed',\n      ended_at = CURRENT_TIMESTAMP,\n      error_message = '@{replace(string(activity('copy_parquet_to_bronze').error), '''', '''''')}'\n  WHERE source_name = '@{item().source_name}'\n    AND partition_key = '@{item().partition_key}'",
+                "storedProcedureName": "[meta].[update_partition_status]",
+                "storedProcedureParameters": {
+                  "cascade_silver_pending": {
+                    "value": "True",
+                    "type": "Boolean"
+                  },
+                  "error_message": {
+                    "value": null,
+                    "type": "String"
+                  },
+                  "layer": {
+                    "value": {
+                      "value": "@variables('layer')",
                       "type": "Expression"
                     },
-                    "type": "NonQuery"
+                    "type": "String"
+                  },
+                  "new_status": {
+                    "value": "succeeded",
+                    "type": "String"
+                  },
+                  "partition_key": {
+                    "value": {
+                      "value": "@item().partition_key",
+                      "type": "Expression"
+                    },
+                    "type": "String"
+                  },
+                  "rows_written": {
+                    "value": null,
+                    "type": "Int64"
+                  },
+                  "source_name": {
+                    "value": {
+                      "value": "@item().source_name",
+                      "type": "Expression"
+                    },
+                    "type": "String"
                   }
-                ],
-                "scriptBlockExecutionTimeout": "02:00:00"
+                }
               },
               "linkedService": {
                 "name": "wh_meta",
@@ -263,16 +287,86 @@
                 "secureInput": false,
                 "secureOutput": false
               },
-              "name": "mark_failed",
+              "name": "mark_partition_succeeded",
               "dependsOn": [
                 {
                   "activity": "copy_parquet_to_bronze",
                   "dependencyConditions": [
-                    "Failed"
+                    "Succeeded"
                   ]
-                },
+                }
+              ]
+            },
+            {
+              "type": "SqlServerStoredProcedure",
+              "typeProperties": {
+                "storedProcedureName": "[meta].[update_partition_status]",
+                "storedProcedureParameters": {
+                  "cascade_silver_pending": {
+                    "value": "False",
+                    "type": "Boolean"
+                  },
+                  "error_message": {
+                    "value": {
+                      "value": "@activity('copy_parquet_to_bronze').error",
+                      "type": "Expression"
+                    },
+                    "type": "String"
+                  },
+                  "layer": {
+                    "value": {
+                      "value": "@variables('layer')",
+                      "type": "Expression"
+                    },
+                    "type": "String"
+                  },
+                  "new_status": {
+                    "value": "failed",
+                    "type": "String"
+                  },
+                  "partition_key": {
+                    "value": {
+                      "value": "@item().partition_key",
+                      "type": "Expression"
+                    },
+                    "type": "String"
+                  },
+                  "rows_written": {
+                    "value": null,
+                    "type": "Int64"
+                  },
+                  "source_name": {
+                    "value": {
+                      "value": "@item().source_name",
+                      "type": "Expression"
+                    },
+                    "type": "String"
+                  }
+                }
+              },
+              "linkedService": {
+                "name": "wh_meta",
+                "properties": {
+                  "type": "DataWarehouse",
+                  "typeProperties": {
+                    "artifactId": "c540ca12-b933-43b7-8ccd-de18e4ef323f",
+                    "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
+                    "workspaceId": "2e0a9a0f-a9ac-4770-9137-10b52d0b6df6"
+                  },
+                  "annotations": []
+                }
+              },
+              "policy": {
+                "timeout": "0.12:00:00",
+                "retry": 0,
+                "retryIntervalInSeconds": 30,
+                "secureInput": false,
+                "secureOutput": false
+              },
+              "name": "mark_partition_failed",
+              "dependsOn": [
                 {
-                  "activity": "mark_running",
+                  "activity": "copy_parquet_to_bronze",
                   "dependencyConditions": [
                     "Failed"
                   ]
@@ -453,8 +547,9 @@
       }
     },
     "variables": {
-      "RunID": {
-        "type": "String"
+      "layer": {
+        "type": "String",
+        "defaultValue": "bronze"
       }
     },
     "concurrency": 1

@@ -130,12 +130,12 @@
         "typeProperties": {
           "source": {
             "type": "DataWarehouseSource",
-            "sqlReaderStoredProcedureName": "[meta].[get_gold_watermark]",
+            "sqlReaderStoredProcedureName": "[meta].[get_watermark]",
             "storedProcedureParameters": {
-              "table_name": {
+              "target_table": {
                 "type": "String",
                 "value": {
-                  "value": "@variables('table_name')",
+                  "value": "@concat(variables('schema_name'),variables('table_name'))",
                   "type": "Expression"
                 }
               }
@@ -181,13 +181,10 @@
       {
         "type": "SqlServerStoredProcedure",
         "typeProperties": {
-          "storedProcedureName": "[meta].[log_gold_watermark]",
+          "storedProcedureName": "[meta].[log_watermark]",
           "storedProcedureParameters": {
             "rows_merged": {
-              "value": {
-                "value": "@activity('copy_stg_to_gold').output.rowsCopied",
-                "type": "Expression"
-              },
+              "value": "@activity('copy_stg_to_gold').output.rowsCopied",
               "type": "Int64"
             },
             "run_id": {
@@ -197,18 +194,22 @@
               },
               "type": "String"
             },
-            "table_name": {
+            "source_table": {
               "value": {
-                "value": "@variables('table_name')",
+                "value": "@variables('source_table')",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "target_table": {
+              "value": {
+                "value": "@concat(variables('schema_name'),variables('table_name'))",
                 "type": "Expression"
               },
               "type": "String"
             },
             "ts": {
-              "value": {
-                "value": "@activity('load_gold_stage').output.result.exitValue",
-                "type": "Expression"
-              },
+              "value": "@activity('load_gold_stage').output.result.exitValue",
               "type": "DateTime"
             }
           }
@@ -417,6 +418,14 @@
       "table_name": {
         "type": "String",
         "defaultValue": "fct_taxi_daily"
+      },
+      "schema_name": {
+        "type": "String",
+        "defaultValue": "wh_gold.dbo."
+      },
+      "source_table": {
+        "type": "String",
+        "defaultValue": "lh_silver.dbo.taxi_trips"
       }
     },
     "concurrency": 1
