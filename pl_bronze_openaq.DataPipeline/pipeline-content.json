@@ -41,7 +41,7 @@
               "type": "String"
             },
             "limit": {
-              "value": "3",
+              "value": "12",
               "type": "Int32"
             },
             "source_name": {

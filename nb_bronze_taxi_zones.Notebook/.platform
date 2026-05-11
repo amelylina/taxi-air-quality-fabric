@@ -1,12 +1,11 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
   "metadata": {
-    "type": "Environment",
-    "displayName": "env_mssql",
-    "description": "Environment"
+    "type": "Notebook",
+    "displayName": "nb_bronze_taxi_zones"
   },
   "config": {
     "version": "2.0",
-    "logicalId": "465e8bc1-939a-9227-4dc4-5b5c6bda6737"
+    "logicalId": "7b9552e1-2dbf-a261-4fb6-49a7dcbb42e7"
   }
 }

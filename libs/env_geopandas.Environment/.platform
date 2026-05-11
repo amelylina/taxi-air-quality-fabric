@@ -2,11 +2,11 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
   "metadata": {
     "type": "Environment",
-    "displayName": "env_mssql",
+    "displayName": "env_geopandas",
     "description": "Environment"
   },
   "config": {
     "version": "2.0",
-    "logicalId": "465e8bc1-939a-9227-4dc4-5b5c6bda6737"
+    "logicalId": "5785e204-d1c7-aa79-4777-44104137e0e8"
   }
 }
