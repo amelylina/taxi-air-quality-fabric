@@ -1,11 +1,11 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
   "metadata": {
-    "type": "DataPipeline",
-    "displayName": "pl_gold_taxi_trips"
+    "type": "Notebook",
+    "displayName": "nb_silver_openaq_sensor_zones"
   },
   "config": {
     "version": "2.0",
-    "logicalId": "bebfd926-ecd0-9f6f-4f0c-9e776c12f5c0"
+    "logicalId": "205106b1-9408-8ce7-4270-1ffc1b223d64"
   }
 }
