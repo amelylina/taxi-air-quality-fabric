@@ -1,11 +1,11 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
   "metadata": {
-    "type": "DataPipeline",
-    "displayName": "pl_bronze_openaq_sensors"
+    "type": "Notebook",
+    "displayName": "nb_silver_openaq_sensor_days"
   },
   "config": {
     "version": "2.0",
-    "logicalId": "c1b81bc7-20f5-a61a-4ca2-df02ab453ee3"
+    "logicalId": "dfff0805-8bd2-b342-4d34-8db9d6109d99"
   }
 }

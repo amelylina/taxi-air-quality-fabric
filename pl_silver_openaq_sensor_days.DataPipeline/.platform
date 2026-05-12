@@ -2,10 +2,10 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
   "metadata": {
     "type": "DataPipeline",
-    "displayName": "pl_bronze_openaq_sensors"
+    "displayName": "pl_silver_openaq_sensor_days"
   },
   "config": {
     "version": "2.0",
-    "logicalId": "c1b81bc7-20f5-a61a-4ca2-df02ab453ee3"
+    "logicalId": "6edddc30-226d-84c0-4608-523fb31ba0a2"
   }
 }

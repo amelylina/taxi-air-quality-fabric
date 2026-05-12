@@ -317,8 +317,7 @@ for partition in partition_keys:
             'layer' : 'bronze',
             'status': "succeeded", 
             'rows_written' : n_written, 
-            'error_message' : err_summary,
-            'cascade_silver' : True
+            'error_message' : err_summary
         })
     except Exception as e:
         results.append({
@@ -327,8 +326,7 @@ for partition in partition_keys:
             'layer' : 'bronze',
             'status': "failed", 
             'rows_written' : 0, 
-            'error_message' : f"write_chunk error: {e}",
-            'cascade_silver' : False
+            'error_message' : f"write_chunk error: {e}"
         })
 
 # METADATA ********************
@@ -347,8 +345,8 @@ try:
     with conn.cursor() as cur:
         cur.executemany(
             "EXEC meta.update_partition_status "
-            "@source_name=%(source_name)s, @partition_key=%(partition_key)s, @layer=%(layer)s, @new_status=%(status)s, "
-            "@rows_written=%(rows_written)s, @error_message=%(error_message)s, @cascade_silver_pending=%(cascade_silver)s",
+            "@source_name=%(source_name)s, @partition_key=%(partition_key)s, @layer=%(layer)s,"
+            "@new_status=%(status)s, @rows_written=%(rows_written)s, @error_message=%(error_message)s",
             results
         )
     conn.commit()
