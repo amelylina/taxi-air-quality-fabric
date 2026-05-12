@@ -64,6 +64,7 @@ from pyspark.sql import functions as F, DataFrame
 from datetime import datetime
 
 SILVER_TABLE = "lh_silver.dbo.taxi_trips"
+STG_TABLE = "lh_silver.stg.fct_taxi_daily"
 
 # METADATA ********************
 
@@ -95,7 +96,7 @@ gold = (gold.withColumn("total_passengers", F.col("total_passengers").cast("int"
     .format("delta")
     .mode("overwrite")
     .option("overwriteSchema", "true")
-    .saveAsTable("lh_silver.stg.gold_taxi"))
+    .saveAsTable("STG_TABLE"))
 
 mssparkutils.notebook.exit(new_watermark)
 
