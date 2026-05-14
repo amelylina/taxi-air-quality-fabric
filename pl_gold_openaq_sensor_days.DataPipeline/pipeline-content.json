@@ -39,8 +39,9 @@
             "writeBehavior": "Upsert",
             "upsertSettings": {
               "keys": [
-                "pickup_zone_id",
-                "date_key"
+                "date_key",
+                "zone_id",
+                "p_id"
               ]
             },
             "datasetSettings": {
@@ -99,7 +100,7 @@
       {
         "type": "TridentNotebook",
         "typeProperties": {
-          "notebookId": "1f17ce05-bc25-99be-4aa2-f45ff5e659c6",
+          "notebookId": "748d31c5-a1aa-bbcc-4821-b945709d35b6",
           "workspaceId": "00000000-0000-0000-0000-000000000000",
           "parameters": {
             "last_processed_ts": {
@@ -258,10 +259,7 @@
           "storedProcedureName": "[meta].[log_pipeline_start]",
           "storedProcedureParameters": {
             "layer": {
-              "value": {
-                "value": "@variables('layer')",
-                "type": "Expression"
-              },
+              "value": "gold",
               "type": "String"
             },
             "pipeline_name": {
@@ -532,9 +530,13 @@
       }
     ],
     "variables": {
+      "layer": {
+        "type": "String",
+        "defaultValue": "gold"
+      },
       "table_name": {
         "type": "String",
-        "defaultValue": "fct_taxi_daily"
+        "defaultValue": "fct_air_quality"
       },
       "schema_name": {
         "type": "String",
@@ -542,14 +544,10 @@
       },
       "source_table": {
         "type": "String",
-        "defaultValue": "lh_silver.dbo.taxi_trips"
+        "defaultValue": "lh_silver.dbo.openaq_measurements"
       },
       "error_arr": {
         "type": "Array"
-      },
-      "layer": {
-        "type": "String",
-        "defaultValue": "gold"
       }
     },
     "concurrency": 1
