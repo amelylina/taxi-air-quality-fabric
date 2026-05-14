@@ -13,6 +13,87 @@
     "sourceQueryCulture": "en-US",
     "tables": [
       {
+        "name": "dm_air_measurement",
+        "sourceLineageTag": "[dbo].[dm_air_measurement]",
+        "columns": [
+          {
+            "name": "p_name",
+            "dataType": "string",
+            "sourceColumn": "p_name",
+            "sourceProviderType": "varchar",
+            "sourceLineageTag": "p_name",
+            "summarizeBy": "none",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ]
+          },
+          {
+            "name": "p_units",
+            "dataType": "string",
+            "sourceColumn": "p_units",
+            "sourceProviderType": "varchar",
+            "sourceLineageTag": "p_units",
+            "summarizeBy": "none",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ]
+          },
+          {
+            "name": "p_display_name",
+            "dataType": "string",
+            "sourceColumn": "p_display_name",
+            "sourceProviderType": "varchar",
+            "sourceLineageTag": "p_display_name",
+            "summarizeBy": "none",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ]
+          },
+          {
+            "name": "p_id",
+            "dataType": "int64",
+            "sourceColumn": "p_id",
+            "formatString": "0",
+            "sourceProviderType": "int",
+            "sourceLineageTag": "p_id",
+            "summarizeBy": "sum",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ]
+          }
+        ],
+        "partitions": [
+          {
+            "name": "{{Partition_Name}}",
+            "mode": "directLake",
+            "source": {
+              "type": "entity",
+              "entityName": "dm_air_measurement",
+              "expressionSource": "DatabaseQuery",
+              "schemaName": "dbo"
+            }
+          }
+        ],
+        "annotations": [
+          {
+            "name": "IsTableInBiModel",
+            "value": "False"
+          }
+        ]
+      },
+      {
         "name": "dm_date",
         "sourceLineageTag": "[dbo].[dm_date]",
         "columns": [

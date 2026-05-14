@@ -51,7 +51,7 @@ df = df.withColumnsRenamed(col_map)
 for col_name, ttype in target_types.items():
     df = df.withColumn(col_name, F.col(col_name).cast(ttype))
 
-df.write.mode("overwrite").synapsesql(f"{ZONE_TABLE}")
+df.write.mode("overwrite").synapsesql(ZONE_TABLE)
 
 # METADATA ********************
 
@@ -77,7 +77,7 @@ date_dim = (spark.range(0, 4018)
     .withColumn("is_weekend", F.dayofweek("date").isin(1, 7))
     .withColumn("year_month", F.date_format("date", "yyyy-MM"))
 )
-date_dim.write.mode("overwrite").synapsesql(f"{DATE_TABLE}")
+date_dim.write.mode("overwrite").synapsesql(DATE_TABLE)
 
 # METADATA ********************
 
@@ -96,7 +96,7 @@ vendors = [
 ]
 
 vendor_df = spark.createDataFrame(vendors,schema='id int, vendor_name string')
-vendor_df.write.mode("overwrite").synapsesql(f"{VENDOR_TABLE}")
+vendor_df.write.mode("overwrite").synapsesql(VENDOR_TABLE)
 
 # METADATA ********************
 
@@ -118,7 +118,22 @@ payments = [
     (6, 'Voided trip')
 ]
 payment_df = spark.createDataFrame(payments,schema='id int, payment_type string')
-payment_df.write.mode("overwrite").synapsesql(f"{PAYMENT_TABLE}")
+payment_df.write.mode("overwrite").synapsesql(PAYMENT_TABLE)
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
+
+PARAMS_FILE = BRONZE_PATH + '/Files/reference/sensor_parameters.csv'
+PARAMS_TABLE = WAREHOUSE_NAME + '.dbo.dm_air_measurement'
+
+df = spark.read.option("header", True).csv(path=PARAMS_FILE, schema="p_id int, p_name string, p_units string, p_display_name string")
+df.write.mode("overwrite").synapsesql(PARAMS_TABLE)
 
 # METADATA ********************
 
