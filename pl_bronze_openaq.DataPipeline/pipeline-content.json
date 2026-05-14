@@ -58,9 +58,9 @@
           "properties": {
             "type": "DataWarehouse",
             "typeProperties": {
-              "artifactId": "c540ca12-b933-43b7-8ccd-de18e4ef323f",
+              "artifactId": "e4ef323f-de18-8ccd-43b7-b933c540ca12",
               "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
-              "workspaceId": "2e0a9a0f-a9ac-4770-9137-10b52d0b6df6"
+              "workspaceId": "00000000-0000-0000-0000-000000000000"
             },
             "annotations": []
           }
@@ -115,9 +115,9 @@
           "properties": {
             "type": "DataWarehouse",
             "typeProperties": {
-              "artifactId": "c540ca12-b933-43b7-8ccd-de18e4ef323f",
+              "artifactId": "e4ef323f-de18-8ccd-43b7-b933c540ca12",
               "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
-              "workspaceId": "2e0a9a0f-a9ac-4770-9137-10b52d0b6df6"
+              "workspaceId": "00000000-0000-0000-0000-000000000000"
             },
             "annotations": []
           }
@@ -138,7 +138,10 @@
           "storedProcedureName": "[meta].[log_pipeline_update]",
           "storedProcedureParameters": {
             "message": {
-              "value": null,
+              "value": {
+                "value": "@activity('nb_bronze_openaq_measurements').error.message",
+                "type": "Expression"
+              },
               "type": "String"
             },
             "run_id": {
@@ -159,9 +162,9 @@
           "properties": {
             "type": "DataWarehouse",
             "typeProperties": {
-              "artifactId": "c540ca12-b933-43b7-8ccd-de18e4ef323f",
+              "artifactId": "e4ef323f-de18-8ccd-43b7-b933c540ca12",
               "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
-              "workspaceId": "2e0a9a0f-a9ac-4770-9137-10b52d0b6df6"
+              "workspaceId": "00000000-0000-0000-0000-000000000000"
             },
             "annotations": []
           }
@@ -175,12 +178,6 @@
         },
         "name": "log_pipeline_failed",
         "dependsOn": [
-          {
-            "activity": "meta_claim_running",
-            "dependencyConditions": [
-              "Failed"
-            ]
-          },
           {
             "activity": "meta_bulk_mark_failed",
             "dependencyConditions": [
@@ -222,9 +219,9 @@
           "properties": {
             "type": "DataWarehouse",
             "typeProperties": {
-              "artifactId": "c540ca12-b933-43b7-8ccd-de18e4ef323f",
+              "artifactId": "e4ef323f-de18-8ccd-43b7-b933c540ca12",
               "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
-              "workspaceId": "2e0a9a0f-a9ac-4770-9137-10b52d0b6df6"
+              "workspaceId": "00000000-0000-0000-0000-000000000000"
             },
             "annotations": []
           }
@@ -283,9 +280,9 @@
           "properties": {
             "type": "DataWarehouse",
             "typeProperties": {
-              "artifactId": "c540ca12-b933-43b7-8ccd-de18e4ef323f",
+              "artifactId": "e4ef323f-de18-8ccd-43b7-b933c540ca12",
               "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
-              "workspaceId": "2e0a9a0f-a9ac-4770-9137-10b52d0b6df6"
+              "workspaceId": "00000000-0000-0000-0000-000000000000"
             },
             "annotations": []
           }
@@ -306,6 +303,60 @@
             ]
           }
         ]
+      },
+      {
+        "type": "SqlServerStoredProcedure",
+        "typeProperties": {
+          "storedProcedureName": "[meta].[log_pipeline_update]",
+          "storedProcedureParameters": {
+            "message": {
+              "value": {
+                "value": "@activity('meta_claim_running').error.message",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "status": {
+              "value": "failed",
+              "type": "String"
+            }
+          }
+        },
+        "linkedService": {
+          "name": "wh_meta",
+          "properties": {
+            "type": "DataWarehouse",
+            "typeProperties": {
+              "artifactId": "e4ef323f-de18-8ccd-43b7-b933c540ca12",
+              "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
+              "workspaceId": "00000000-0000-0000-0000-000000000000"
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "log_pipeline_failed_2",
+        "dependsOn": [
+          {
+            "activity": "meta_claim_running",
+            "dependencyConditions": [
+              "Failed"
+            ]
+          }
+        ]
       }
     ],
     "libraryVariables": {
@@ -319,6 +370,9 @@
       "layer": {
         "type": "String",
         "defaultValue": "bronze"
+      },
+      "error_msg": {
+        "type": "String"
       }
     },
     "concurrency": 1

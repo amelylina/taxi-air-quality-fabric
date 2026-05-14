@@ -96,7 +96,7 @@ gold = (gold.withColumn("total_passengers", F.col("total_passengers").cast("int"
     .format("delta")
     .mode("overwrite")
     .option("overwriteSchema", "true")
-    .saveAsTable("STG_TABLE"))
+    .saveAsTable(STG_TABLE))
 
 mssparkutils.notebook.exit(new_watermark)
 

@@ -10,7 +10,10 @@
               "type": "LakehouseTable",
               "typeProperties": {
                 "schema": "stg",
-                "table": "gold_taxi"
+                "table": {
+                  "value": "@variables('table_name')",
+                  "type": "Expression"
+                }
               },
               "schema": [],
               "linkedService": {
@@ -356,7 +359,10 @@
           "storedProcedureName": "[meta].[log_pipeline_update]",
           "storedProcedureParameters": {
             "message": {
-              "value": null,
+              "value": {
+                "value": "@first(activity('filter_empty').output.Value)",
+                "type": "Expression"
+              },
               "type": "String"
             },
             "run_id": {
@@ -394,27 +400,129 @@
         "name": "log_pipeline_failed",
         "dependsOn": [
           {
-            "activity": "log_gold_watermark",
+            "activity": "filter_empty",
             "dependencyConditions": [
-              "Failed"
+              "Completed"
             ]
-          },
-          {
-            "activity": "copy_stg_to_gold",
-            "dependencyConditions": [
-              "Failed"
-            ]
-          },
-          {
-            "activity": "load_gold_stage",
-            "dependencyConditions": [
-              "Failed"
-            ]
-          },
+          }
+        ]
+      },
+      {
+        "type": "AppendVariable",
+        "typeProperties": {
+          "variableName": "error_arr",
+          "value": {
+            "value": "@coalesce(activity('get_gold_watermark')?.error?.message, '')",
+            "type": "Expression"
+          }
+        },
+        "name": "append_error",
+        "dependsOn": [
           {
             "activity": "get_gold_watermark",
             "dependencyConditions": [
-              "Failed"
+              "Completed",
+              "Skipped"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "AppendVariable",
+        "typeProperties": {
+          "variableName": "error_arr",
+          "value": {
+            "value": "@coalesce(activity('load_gold_stage')?.error?.message, '')",
+            "type": "Expression"
+          }
+        },
+        "name": "append_error_copy1",
+        "dependsOn": [
+          {
+            "activity": "load_gold_stage",
+            "dependencyConditions": [
+              "Skipped",
+              "Completed"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "AppendVariable",
+        "typeProperties": {
+          "variableName": "error_arr",
+          "value": {
+            "value": "@coalesce(activity('copy_stg_to_gold')?.error?.message, '')",
+            "type": "Expression"
+          }
+        },
+        "name": "append_error_copy2",
+        "dependsOn": [
+          {
+            "activity": "copy_stg_to_gold",
+            "dependencyConditions": [
+              "Skipped",
+              "Completed"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "AppendVariable",
+        "typeProperties": {
+          "variableName": "error_arr",
+          "value": {
+            "value": "@coalesce(activity('log_gold_watermark')?.error?.message,'')",
+            "type": "Expression"
+          }
+        },
+        "name": "append_error_copy3",
+        "dependsOn": [
+          {
+            "activity": "log_gold_watermark",
+            "dependencyConditions": [
+              "Failed",
+              "Skipped"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "Filter",
+        "typeProperties": {
+          "items": {
+            "value": "@variables('error_arr')",
+            "type": "Expression"
+          },
+          "condition": {
+            "value": "@not(empty(item()))",
+            "type": "Expression"
+          }
+        },
+        "name": "filter_empty",
+        "dependsOn": [
+          {
+            "activity": "append_error",
+            "dependencyConditions": [
+              "Completed"
+            ]
+          },
+          {
+            "activity": "append_error_copy1",
+            "dependencyConditions": [
+              "Completed"
+            ]
+          },
+          {
+            "activity": "append_error_copy2",
+            "dependencyConditions": [
+              "Completed"
+            ]
+          },
+          {
+            "activity": "append_error_copy3",
+            "dependencyConditions": [
+              "Completed"
             ]
           }
         ]
@@ -432,6 +540,9 @@
       "source_table": {
         "type": "String",
         "defaultValue": "lh_silver.dbo.taxi_trips"
+      },
+      "error_arr": {
+        "type": "Array"
       }
     },
     "concurrency": 1

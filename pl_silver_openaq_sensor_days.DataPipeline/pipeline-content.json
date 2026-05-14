@@ -210,7 +210,10 @@
           "storedProcedureName": "[meta].[log_pipeline_update]",
           "storedProcedureParameters": {
             "message": {
-              "value": null,
+              "value": {
+                "value": "@first(activity('filter_empty').output.Value)",
+                "type": "Expression"
+              },
               "type": "String"
             },
             "run_id": {
@@ -248,9 +251,9 @@
         "name": "log_pipeline_failed",
         "dependsOn": [
           {
-            "activity": "load_silver_openaq_sensor_daily",
+            "activity": "filter_empty",
             "dependencyConditions": [
-              "Failed"
+              "Completed"
             ]
           }
         ]
@@ -311,6 +314,100 @@
             ]
           }
         ]
+      },
+      {
+        "type": "AppendVariable",
+        "typeProperties": {
+          "variableName": "error_arr",
+          "value": {
+            "value": "@coalesce(activity('get_watermark')?.error?.message, '')",
+            "type": "Expression"
+          }
+        },
+        "name": "append_error",
+        "dependsOn": [
+          {
+            "activity": "get_watermark",
+            "dependencyConditions": [
+              "Completed",
+              "Skipped"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "AppendVariable",
+        "typeProperties": {
+          "variableName": "error_arr",
+          "value": {
+            "value": "@coalesce(activity('load_silver_openaq_sensor_daily')?.error?.message, '')",
+            "type": "Expression"
+          }
+        },
+        "name": "append_error_copy1",
+        "dependsOn": [
+          {
+            "activity": "load_silver_openaq_sensor_daily",
+            "dependencyConditions": [
+              "Completed",
+              "Skipped"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "Filter",
+        "typeProperties": {
+          "items": {
+            "value": "@variables('error_arr')",
+            "type": "Expression"
+          },
+          "condition": {
+            "value": "@not(empty(item()))",
+            "type": "Expression"
+          }
+        },
+        "name": "filter_empty",
+        "dependsOn": [
+          {
+            "activity": "append_error",
+            "dependencyConditions": [
+              "Completed"
+            ]
+          },
+          {
+            "activity": "append_error_copy1",
+            "dependencyConditions": [
+              "Completed"
+            ]
+          },
+          {
+            "activity": "append_error_copy2",
+            "dependencyConditions": [
+              "Completed"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "AppendVariable",
+        "typeProperties": {
+          "variableName": "error_arr",
+          "value": {
+            "value": "@coalesce(activity('log_watermark')?.error?.message, '')",
+            "type": "Expression"
+          }
+        },
+        "name": "append_error_copy2",
+        "dependsOn": [
+          {
+            "activity": "log_watermark",
+            "dependencyConditions": [
+              "Completed",
+              "Skipped"
+            ]
+          }
+        ]
       }
     ],
     "variables": {
@@ -320,6 +417,9 @@
       },
       "ts": {
         "type": "String"
+      },
+      "error_arr": {
+        "type": "Array"
       }
     }
   }
