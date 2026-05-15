@@ -14,15 +14,9 @@
 # META       "known_lakehouses": [
 # META         {
 # META           "id": "c4c9cf64-1667-4152-bd26-12854382cfbe"
-# META         }
-# META       ]
-# META     },
-# META     "warehouse": {
-# META       "default_warehouse": "461ede96-fee3-4cb5-a540-1f0ecc40fb6c",
-# META       "known_warehouses": [
+# META         },
 # META         {
-# META           "id": "461ede96-fee3-4cb5-a540-1f0ecc40fb6c",
-# META           "type": "Lakewarehouse"
+# META           "id": "41c4f02d-1dba-4787-a05c-4fb6306e3f15"
 # META         }
 # META       ]
 # META     }
@@ -49,8 +43,8 @@ from delta.tables import DeltaTable
 from datetime import datetime
 import json
 
-BRONZE_TABLE = "lh_bronze.dbo.ecb_fx_daily"
-SILVER_TABLE = "lh_silver.dbo.fx_daily"
+BRONZE_TABLE = "lh_bronze.dbo.worldbank_gdp"
+SILVER_TABLE = "lh_silver.dbo.gdp_yearly"
 
 if watermark_ts is None:
     watermark_ts = datetime(1900, 1, 1)
@@ -75,65 +69,24 @@ if new_ts is None:
 
 clean = (new_bronze
     .select(
-        F.col("TIME_PERIOD").alias("rate_date"),
-        F.col("CURRENCY").alias("from_currency"),
-        F.col("CURRENCY_DENOM").alias("to_currency"),
-        F.col("OBS_VALUE").alias("rate"),
-        F.col("OBS_STATUS").alias("obs_status"),
-        F.col("FREQ").alias("frequency"),
+        F.col("countryiso3code").alias("country_code"),
+        F.col("country_name"),
+        F.col("indicator_id"),
+        F.col("indicator_name"),
+        F.col("year"),
+        F.col("value").cast(DecimalType(20, 2)).alias("gdp_usd"),
         F.col("loaded_at"),
     )
-    .filter(F.col("obs_status")=='A')
-    .filter(F.col("rate").isNotNull())
-    .filter(F.col("rate")>0)
-    .withColumn("rate", F.col("rate").cast(DecimalType(18,6)))
-    .withColumn("rate_date", F.to_date("rate_date"))
+    .filter(F.col("gdp_usd").isNotNull())
+    .filter(F.col("gdp_usd") > 0)
+    .filter(F.col("year").isNotNull())
     .withColumn("row_num", F.row_number().over(
-        Window.partitionBy("rate_date", "from_currency", "to_currency")
-              .orderBy(F.col("ingested_at").desc())
+        Window.partitionBy("country_code", "indicator_id", "year")
+              .orderBy(F.col("loaded_at").desc())
     ))
     .filter(F.col("row_num") == 1)
     .drop("row_num")
 )
-display(clean)
-
-# METADATA ********************
-
-# META {
-# META   "language": "python",
-# META   "language_group": "synapse_pyspark"
-# META }
-
-# CELL ********************
-
-date_range = (
-    clean.select(
-        F.min("rate_date").alias("min_date"),
-        F.max("rate_date").alias("max_date")
-    ).select(
-        F.explode(F.sequence("min_date","max_date"))
-        .alias("rate_date")
-    )
-)
-
-pairs = clean.select("from_currency","to_currency").distinct()
-spine = date_range.crossJoin(pairs)
-
-filled = (
-    spine.join(clean.select("rate_date", "from_currency", "to_currency", "rate"),
-    ["rate_date", "from_currency", "to_currency"],"left")
-)
-
-w = (Window.partitionBy("from_currency","to_currency")
-    .orderBy("rate_date")
-    .rowsBetween(Window.unboundedPreceding, 0)
-)
-
-clean_filled = (filled
-    .withColumn("rate", F.last("rate", ignorenulls=True).over(w))
-    .filter(F.col("rate").isNotNull())
-)
-display(clean_filled)
 
 # METADATA ********************
 
@@ -150,9 +103,9 @@ if spark.catalog.tableExists(SILVER_TABLE):
         .merge(
             clean.alias("s"),
             """
-            t.rate_date = s.rate_date
-            AND t.from_currency = s.from_currency
-            AND t.to_currency = s.to_currency
+            t.country_code = s.country_code
+            AND t.indicator_id = s.indicator_id
+            AND t.year = s.year
             """
         )
         .whenMatchedUpdateAll()

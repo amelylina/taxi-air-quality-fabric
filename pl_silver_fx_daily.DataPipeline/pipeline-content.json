@@ -54,7 +54,7 @@
       {
         "type": "TridentNotebook",
         "typeProperties": {
-          "notebookId": "dfff0805-8bd2-b342-4d34-8db9d6109d99",
+          "notebookId": "28a0097e-1dad-925d-45e6-69c40a67421d",
           "workspaceId": "00000000-0000-0000-0000-000000000000",
           "parameters": {
             "watermark_ts": {
@@ -73,7 +73,7 @@
           "secureInput": false,
           "secureOutput": false
         },
-        "name": "load_silver_openaq_sensor_daily",
+        "name": "load_silver_fx_daily",
         "dependsOn": [
           {
             "activity": "get_watermark",
@@ -92,7 +92,10 @@
             "storedProcedureParameters": {
               "target_table": {
                 "type": "String",
-                "value": "lh_silver.dbo.openaq_measurements"
+                "value": {
+                  "value": "@variables('target_table')",
+                  "type": "Expression"
+                }
               }
             },
             "partitionOption": "None",
@@ -140,7 +143,7 @@
           "storedProcedureParameters": {
             "rows_merged": {
               "value": {
-                "value": "@{json(activity('load_silver_openaq_sensor_daily').output.result.exitValue).row_count}",
+                "value": "@{json(activity('load_silver_fx_daily').output.result.exitValue).row_count}",
                 "type": "Expression"
               },
               "type": "Int64"
@@ -154,21 +157,21 @@
             },
             "source_table": {
               "value": {
-                "value": "@{json(activity('load_silver_openaq_sensor_daily').output.result.exitValue).source_table}",
+                "value": "@{json(activity('load_silver_fx_daily').output.result.exitValue).source_table}",
                 "type": "Expression"
               },
               "type": "String"
             },
             "target_table": {
               "value": {
-                "value": "@{json(activity('load_silver_openaq_sensor_daily').output.result.exitValue).target_table}",
+                "value": "@{json(activity('load_silver_fx_daily').output.result.exitValue).target_table}",
                 "type": "Expression"
               },
               "type": "String"
             },
             "ts": {
               "value": {
-                "value": "@{json(activity('load_silver_openaq_sensor_daily').output.result.exitValue).new_ts}",
+                "value": "@{json(activity('load_silver_fx_daily').output.result.exitValue).new_ts}",
                 "type": "Expression"
               },
               "type": "DateTime"
@@ -197,7 +200,7 @@
         "name": "log_watermark",
         "dependsOn": [
           {
-            "activity": "load_silver_openaq_sensor_daily",
+            "activity": "load_silver_fx_daily",
             "dependencyConditions": [
               "Succeeded"
             ]
@@ -265,7 +268,7 @@
           "storedProcedureParameters": {
             "message": {
               "value": {
-                "value": "@{concat('Loaded ', json(activity('load_silver_openaq_sensor_daily').output.result.exitValue).row_count, ' rows into silver')}",
+                "value": "@{concat('Loaded ', json(activity('load_silver_fx_daily').output.result.exitValue).row_count, ' rows into silver')}",
                 "type": "Expression"
               },
               "type": "String"
@@ -340,14 +343,14 @@
         "typeProperties": {
           "variableName": "error_arr",
           "value": {
-            "value": "@coalesce(activity('load_silver_openaq_sensor_daily')?.error?.message, '')",
+            "value": "@coalesce(activity('load_silver_fx_daily')?.error?.message, '')",
             "type": "Expression"
           }
         },
         "name": "append_error_copy1",
         "dependsOn": [
           {
-            "activity": "load_silver_openaq_sensor_daily",
+            "activity": "load_silver_fx_daily",
             "dependencyConditions": [
               "Completed",
               "Skipped"
@@ -420,7 +423,12 @@
       },
       "error_arr": {
         "type": "Array"
+      },
+      "target_table": {
+        "type": "String",
+        "defaultValue": "lh_silver.dbo.fx_daily"
       }
-    }
+    },
+    "concurrency": 1
   }
 }

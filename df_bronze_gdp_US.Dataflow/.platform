@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Dataflow",
+    "displayName": "df_bronze_gdp_US"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "7bd894cb-7da9-a19c-4d86-a77ad1dfebce"
+  }
+}
