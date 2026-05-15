@@ -78,14 +78,14 @@ STG_TABLE = "lh_silver.stg.fct_taxi_daily"
 silver = spark.read.table(SILVER_TABLE)
 
 gold = (silver.filter((F.col("ingested_at")>last_processed_ts) & (F.col("ingested_At")<=new_watermark))
-    .groupBy("trip_date", "pulocationid").agg(
+    .groupBy("trip_date", "pulocationid", "payment_type").agg(
         F.count("*").alias("trip_count"),
         F.sum("fare_amount").alias("total_fare_usd"),
         F.sum("total_amount").alias("total_revenue_usd"),
         F.sum("trip_distance").alias("total_distance_miles"),
         F.avg("trip_duration_min").alias("avg_trip_duration_min"),
         F.sum("passenger_count").alias("total_passengers"),
-    ).withColumnRenamed("pulocationid", "pickup_zone_id")
+    ).withColumnsRenamed({"pulocationid": "pickup_zone_id", "payment_type": "payment_id"})
 )
 gold = (gold.withColumn("total_passengers", F.col("total_passengers").cast("int"))
     .withColumn("date_key", F.date_format("trip_date", "yyyyMMdd").cast("int"))

@@ -81,8 +81,10 @@ result['mapped_at'] = pd.Timestamp.utcnow()
 
 # CELL ********************
 
-sdf = spark.createDataFrame(result)
-sdf.write.format("delta").mode("overwrite").saveAsTable("lh_silver.dbo.openaq_sensor_zones")
+SCHEMA = "sensor_id long, location_id long, p_name string, latitude double, longitude double, zone_id int, zone_name string, borough string"
+
+sdf = spark.createDataFrame(result, SCHEMA)
+sdf.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable("lh_silver.dbo.openaq_sensor_zones")
 
 n_unmapped = result['zone_id'].isna().sum()
 print(f"sensors not mapped to any zone: {n_unmapped} / {len(result)}")

@@ -40,7 +40,8 @@
             "upsertSettings": {
               "keys": [
                 "pickup_zone_id",
-                "date_key"
+                "date_key",
+                "payment_id"
               ]
             },
             "datasetSettings": {
