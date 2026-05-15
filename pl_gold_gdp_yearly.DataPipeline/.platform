@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "DataPipeline",
+    "displayName": "pl_gold_gdp_yearly"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "1e1cc1ca-c102-9668-4faf-2b58bf54eeb6"
+  }
+}

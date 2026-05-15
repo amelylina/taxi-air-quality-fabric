@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Notebook",
+    "displayName": "nb_gold_gdp_yearly"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "8df8977e-2b45-b86f-45d0-19a63088e6b3"
+  }
+}

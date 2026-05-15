@@ -141,3 +141,21 @@ df.write.mode("overwrite").synapsesql(PARAMS_TABLE)
 # META   "language": "python",
 # META   "language_group": "synapse_pyspark"
 # META }
+
+# CELL ********************
+
+CURRENCY_TABLE = WAREHOUSE_NAME + ".dbo.dm_currency"
+
+currency = [
+    (1, 'USD'),
+    (2, 'EUR'),
+]
+payment_df = spark.createDataFrame(currency,schema='id int, currency_name string')
+payment_df.write.mode("overwrite").synapsesql(CURRENCY_TABLE)
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
