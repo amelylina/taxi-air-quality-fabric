@@ -205,8 +205,9 @@ def write_chunk(spark, rows, chunk_from, chunk_to):
         .withColumn("month", F.month("date_utc"))
         .withColumn("loaded_at",  F.current_timestamp())
         .withColumn("load_date", F.to_date("loaded_at"))
+        .withColumn("load_source", F.lit("openaq_api"))
     )
-
+    n = df.count()
     (
     df.write
         .format("delta")
@@ -215,7 +216,7 @@ def write_chunk(spark, rows, chunk_from, chunk_to):
         .saveAsTable(TARGET_TABLE)
     )
 
-    return df.count()
+    return n
 
 # METADATA ********************
 

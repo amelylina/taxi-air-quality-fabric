@@ -12,6 +12,12 @@
       "note": "",
       "type": "String",
       "value": "openaq_nyc_daily"
+    },
+    {
+      "name": "openaq_s3",
+      "note": "",
+      "type": "String",
+      "value": "openaq_s3"
     }
   ]
 }

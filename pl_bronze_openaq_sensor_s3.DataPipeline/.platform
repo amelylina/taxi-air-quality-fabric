@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "DataPipeline",
+    "displayName": "pl_bronze_openaq_sensor_s3"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "de8dd29f-d93c-8292-40a2-a464aa6d822f"
+  }
+}
