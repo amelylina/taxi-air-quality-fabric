@@ -33,6 +33,7 @@ watermark_ts = "1900-01-01"
 
 # CELL ********************
 
+from pyspark.sql.window import Window
 from pyspark.sql import functions as F
 from delta.tables import DeltaTable
 from datetime import datetime
@@ -67,7 +68,13 @@ clean = (new_bronze
     .filter(F.col("value") >= 0)
     .filter(F.col("coverage_pct") >= 75)
     .filter(F.col("date_utc").isNotNull())
-    .dropDuplicates(["sensor_id", "date_utc", "parameter"])
+    .withColumn("row_num", F.row_number().over(
+        Window.partitionBy("sensor_id", "date_utc", "parameter")
+              .orderBy(F.col("loaded_at").desc())
+    ))
+    .filter(F.col("row_num") == 1)
+    .drop("row_num")
+
     .withColumn("year",  F.year("date_utc"))
     .withColumn("month", F.month("date_utc"))
     .select(

@@ -26,6 +26,8 @@
 
 # CELL ********************
 
+from pyspark.sql import functions as F
+from pyspark.sql.window import Window
 from shapely import wkt
 from shapely.geometry import Point
 import pandas as pd
@@ -46,8 +48,13 @@ zones_pdf['geom'] = zones_pdf['geometry_wkt'].apply(wkt.loads)
 zones_gdf = gpd.GeoDataFrame(zones_pdf[['zone_id', 'zone_name', 'borough']], geometry=zones_pdf['geom'], crs=4326)
 
 sensors_pdf = (spark.read.table("lh_bronze.dbo.openaq_locations")
-    .select("location_id", "sensor_id", "p_name", "latitude", "longitude")
-    .dropDuplicates(["sensor_id"])
+    .select("location_id", "sensor_id", "p_name", "latitude", "longitude","loaded_at")
+    .withColumn("row_num", F.row_number().over(
+        Window.partitionBy("sensor_id")
+              .orderBy(F.col("loaded_at").desc())
+    ))
+    .filter(F.col("row_num") == 1)
+    .drop("row_num")
     .toPandas())
 
 sensors_gdf = gpd.GeoDataFrame(
@@ -69,8 +76,7 @@ joined = gpd.sjoin(sensors_gdf, zones_gdf, how="left", predicate="within")
 
 result = joined[['sensor_id', 'location_id', 'p_name', 
                  'latitude', 'longitude',
-                 'zone_id', 'zone_name', 'borough']].copy()
-result['mapped_at'] = pd.Timestamp.utcnow()
+                 'zone_id', 'zone_name', 'borough','loaded_at']].copy()
 
 # METADATA ********************
 
@@ -81,7 +87,7 @@ result['mapped_at'] = pd.Timestamp.utcnow()
 
 # CELL ********************
 
-SCHEMA = "sensor_id long, location_id long, p_name string, latitude double, longitude double, zone_id int, zone_name string, borough string"
+SCHEMA = "sensor_id long, location_id long, p_name string, latitude double, longitude double, zone_id int, zone_name string, borough string, loaded_at timestamp"
 
 sdf = spark.createDataFrame(result, SCHEMA)
 sdf.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable("lh_silver.dbo.openaq_sensor_zones")

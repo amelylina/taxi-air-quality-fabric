@@ -46,7 +46,7 @@ last_processed_ts="1990-01-01"
 
 # CELL ********************
 
-new_watermark = spark.sql("SELECT MAX(ingested_at) FROM lh_silver.dbo.taxi_trips").collect()[0][0]
+new_watermark = spark.sql("SELECT MAX(loaded_at) FROM lh_silver.dbo.taxi_trips").collect()[0][0]
 
 # METADATA ********************
 
@@ -77,7 +77,7 @@ STG_TABLE = "lh_silver.stg.fct_taxi_daily"
 
 silver = spark.read.table(SILVER_TABLE)
 
-gold = (silver.filter((F.col("ingested_at")>last_processed_ts) & (F.col("ingested_At")<=new_watermark))
+gold = (silver.filter((F.col("loaded_at")>last_processed_ts) & (F.col("loaded_at")<=new_watermark))
     .groupBy("trip_date", "pulocationid", "payment_type").agg(
         F.count("*").alias("trip_count"),
         F.sum("fare_amount").alias("total_fare_usd"),

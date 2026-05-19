@@ -90,12 +90,11 @@ clean = (new_bronze
     .withColumn("rate_date", F.to_date("rate_date"))
     .withColumn("row_num", F.row_number().over(
         Window.partitionBy("rate_date", "from_currency", "to_currency")
-              .orderBy(F.col("ingested_at").desc())
+              .orderBy(F.col("loaded_at").desc())
     ))
     .filter(F.col("row_num") == 1)
     .drop("row_num")
 )
-display(clean)
 
 # METADATA ********************
 
@@ -133,7 +132,6 @@ clean_filled = (filled
     .withColumn("rate", F.last("rate", ignorenulls=True).over(w))
     .filter(F.col("rate").isNotNull())
 )
-display(clean_filled)
 
 # METADATA ********************
 

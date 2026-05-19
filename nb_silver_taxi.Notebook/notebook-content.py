@@ -173,7 +173,7 @@ if normalized_dfs:
         .withColumn("trip_date", F.to_date("tpep_pickup_datetime"))
         .withColumn("hour_of_day", F.hour("tpep_pickup_datetime"))
         .withColumn("day_of_week", F.dayofweek("tpep_pickup_datetime"))
-        .withColumn("ingested_at", F.current_timestamp())
+        .withColumn("loaded_at", F.current_timestamp())
         .withColumn("source_system", F.lit(SOURCE_NAME))
     )
 
