@@ -17,7 +17,10 @@
               },
               "limit": {
                 "type": "Int32",
-                "value": "12"
+                "value": {
+                  "value": "@pipeline().parameters.claim_limit",
+                  "type": "Expression"
+                }
               },
               "source_name": {
                 "type": "String",
@@ -590,6 +593,12 @@
         ]
       }
     ],
+    "parameters": {
+      "claim_limit": {
+        "type": "int",
+        "defaultValue": 12
+      }
+    },
     "libraryVariables": {
       "yellow_taxi": {
         "type": "String",

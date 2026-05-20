@@ -32,8 +32,15 @@ from shapely import wkt
 from shapely.geometry import Point
 import pandas as pd
 import geopandas as gpd
+import json
 
-zones_pdf = spark.read.table("lh_bronze.dbo.taxi_zone_shapes").toPandas()
+zone_table = spark.read.table("lh_bronze.dbo.taxi_zone_shapes")
+if zone_table.isEmpty():
+    raise RuntimeError(
+        "taxi zones table is empty"
+    )
+else: 
+    zones_pdf = zone_table.toPandas()
 zones_pdf['geom'] = zones_pdf['geometry_wkt'].apply(wkt.loads)
 
 # METADATA ********************
@@ -93,7 +100,14 @@ sdf = spark.createDataFrame(result, SCHEMA)
 sdf.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable("lh_silver.dbo.openaq_sensor_zones")
 
 n_unmapped = result['zone_id'].isna().sum()
-print(f"sensors not mapped to any zone: {n_unmapped} / {len(result)}")
+sensor_count = len(result)
+n_mapped = sensor_count-n_unmapped
+
+mssparkutils.notebook.exit(json.dumps({
+    "mapped" : n_mapped,
+    "unmapped" : n_unmapped,
+    "total_sensors" : sensor_count,
+}))
 
 # METADATA ********************
 

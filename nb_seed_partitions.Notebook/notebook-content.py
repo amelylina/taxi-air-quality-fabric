@@ -26,8 +26,8 @@
 # PARAMETERS CELL ********************
 
 source_name = "openaq_nyc_daily"
-date_from = "2023-01-01"
-date_to = "2024-12-01" #inclusive of this month
+date_from = "2023-01"
+date_to = "2024-12" #inclusive of this month
 url_template = ""
 table_name = "meta.ingestion_control"
 
@@ -57,7 +57,7 @@ def month_range(date_from: date, date_to: date):
         cur += relativedelta(months=1)
 
 def build_url(template: str | None, month_start: date) -> str | None:
-    if template is None:
+    if not template:
         return None
     yyyy_mm = month_start.strftime("%Y-%m")
     yyyy = month_start.strftime("%Y")
@@ -103,10 +103,11 @@ def seed_partitions(rows: list[tuple]) -> int:
         with conn.cursor() as cur :
             cur.executemany(INSERT_SQL, payload)
         conn.commit()
-    except:
+    except Exception:
         conn.rollback()
-    
-    conn.close()
+        raise
+    finally:
+        conn.close()
 
     return
 
@@ -119,9 +120,9 @@ def seed_partitions(rows: list[tuple]) -> int:
 
 # CELL ********************
 
-date_from = datetime.strptime(date_from, '%Y-%m-%d').date()
-date_to = datetime.strptime(date_to, '%Y-%m-%d').date()
-all_rows = build_monthly_rows(source_name, date_from, date_to, None)
+date_from = datetime.strptime(date_from, '%Y-%m').date()
+date_to = datetime.strptime(date_to, '%Y-%m').date()
+all_rows = build_monthly_rows(source_name, date_from, date_to, url_template)
 print(all_rows)
 
 # METADATA ********************

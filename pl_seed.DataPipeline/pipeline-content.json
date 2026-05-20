@@ -1,0 +1,599 @@
+{
+  "properties": {
+    "activities": [
+      {
+        "type": "SqlServerStoredProcedure",
+        "typeProperties": {
+          "storedProcedureName": "[meta].[log_pipeline_start]",
+          "storedProcedureParameters": {
+            "layer": {
+              "value": {
+                "value": "@variables('layer')",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "pipeline_name": {
+              "value": {
+                "value": "@pipeline().PipelineName",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "String"
+            }
+          }
+        },
+        "linkedService": {
+          "name": "wh_meta",
+          "properties": {
+            "type": "DataWarehouse",
+            "typeProperties": {
+              "artifactId": "e4ef323f-de18-8ccd-43b7-b933c540ca12",
+              "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
+              "workspaceId": "00000000-0000-0000-0000-000000000000"
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "log_pipeline_start",
+        "dependsOn": []
+      },
+      {
+        "type": "SqlServerStoredProcedure",
+        "typeProperties": {
+          "storedProcedureName": "[meta].[log_pipeline_update]",
+          "storedProcedureParameters": {
+            "message": {
+              "type": "String"
+            },
+            "run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "status": {
+              "value": "succeeded",
+              "type": "String"
+            }
+          }
+        },
+        "linkedService": {
+          "name": "wh_meta",
+          "properties": {
+            "type": "DataWarehouse",
+            "typeProperties": {
+              "artifactId": "e4ef323f-de18-8ccd-43b7-b933c540ca12",
+              "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
+              "workspaceId": "00000000-0000-0000-0000-000000000000"
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "log_pipeline_succeeded",
+        "dependsOn": [
+          {
+            "activity": "silver_openaq_sensor_zones",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          },
+          {
+            "activity": "gold_gdp",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          },
+          {
+            "activity": "seed_air_measurement_partitions",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          },
+          {
+            "activity": "gold_seed_dimensions",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "2c896ebc-6801-979c-498d-396c76c29e52",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "source_name": {
+              "value": {
+                "value": "@pipeline().libraryVariables.taxi",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "date_from": {
+              "value": {
+                "value": "@variables('date_from')",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "date_to": {
+              "value": {
+                "value": "@variables('date_to')",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "url_template": {
+              "value": {
+                "value": "@variables('taxi_template')",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "table_name": {
+              "value": {
+                "value": "@variables('ingestion_table')",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          },
+          "sessionTag": {
+            "value": "@pipeline().RunId",
+            "type": "Expression"
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "seed_taxi_partitions",
+        "dependsOn": [
+          {
+            "activity": "log_pipeline_start",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "2c896ebc-6801-979c-498d-396c76c29e52",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "source_name": {
+              "value": {
+                "value": "@pipeline().libraryVariables.openaq",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "date_from": {
+              "value": {
+                "value": "@variables('date_from')",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "date_to": {
+              "value": {
+                "value": "@variables('date_to')",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "url_template": {
+              "value": {
+                "value": "@variables('air_template')",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "table_name": {
+              "value": {
+                "value": "@variables('ingestion_table')",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          },
+          "sessionTag": {
+            "value": "@pipeline().RunId",
+            "type": "Expression"
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "seed_air_measurement_partitions",
+        "dependsOn": [
+          {
+            "activity": "seed_taxi_partitions",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "7b9552e1-2dbf-a261-4fb6-49a7dcbb42e7",
+          "workspaceId": "00000000-0000-0000-0000-000000000000"
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "bronze_taxi_zones_shape",
+        "dependsOn": [
+          {
+            "activity": "log_pipeline_start",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "205106b1-9408-8ce7-4270-1ffc1b223d64",
+          "workspaceId": "00000000-0000-0000-0000-000000000000"
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "silver_openaq_sensor_zones",
+        "dependsOn": [
+          {
+            "activity": "bronze_taxi_zones_shape",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          },
+          {
+            "activity": "df_bronze_openaq_locs",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "RefreshDataflow",
+        "typeProperties": {
+          "dataflowId": "84fd191d-1f1d-9e3b-4427-86c2fba264a0",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "notifyOption": "NoNotification",
+          "dataflowType": "DataflowFabric",
+          "parameters": {
+            "OPENAQKEY": {
+              "value": {
+                "value": "@activity('fetch_openaq_api_key').output.value",
+                "type": "Expression"
+              },
+              "type": "Any"
+            }
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "df_bronze_openaq_locs",
+        "dependsOn": [
+          {
+            "activity": "fetch_openaq_api_key",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "RefreshDataflow",
+        "typeProperties": {
+          "dataflowId": "7bd894cb-7da9-a19c-4d86-a77ad1dfebce",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "notifyOption": "NoNotification",
+          "dataflowType": "DataflowFabric"
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "df_gdp_yearly",
+        "dependsOn": [
+          {
+            "activity": "log_pipeline_start",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "WebActivity",
+        "typeProperties": {
+          "method": "GET",
+          "relativeUrl": "openaq-key?api-version=7.4",
+          "headers": {}
+        },
+        "externalReferences": {
+          "connection": "19e27ac3-6957-4615-aade-18cb0931adcd"
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": true
+        },
+        "name": "fetch_openaq_api_key",
+        "dependsOn": [
+          {
+            "activity": "log_pipeline_start",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "1bcee7a3-421b-94f4-4c03-42732111c8f8",
+          "workspaceId": "00000000-0000-0000-0000-000000000000"
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "silver_gdp",
+        "dependsOn": [
+          {
+            "activity": "df_gdp_yearly",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "8df8977e-2b45-b86f-45d0-19a63088e6b3",
+          "workspaceId": "00000000-0000-0000-0000-000000000000"
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "gold_gdp",
+        "dependsOn": [
+          {
+            "activity": "silver_gdp",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "b6ae478e-d986-bb2d-4832-93db8c7214c2",
+          "workspaceId": "00000000-0000-0000-0000-000000000000"
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "gold_seed_dimensions",
+        "dependsOn": [
+          {
+            "activity": "log_pipeline_start",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "SqlServerStoredProcedure",
+        "typeProperties": {
+          "storedProcedureName": "[meta].[log_pipeline_update]",
+          "storedProcedureParameters": {
+            "message": {
+              "value": {
+                "value": "@first(activity('filter_empty').output.Value)",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "status": {
+              "value": "failed",
+              "type": "String"
+            }
+          }
+        },
+        "linkedService": {
+          "name": "wh_meta",
+          "properties": {
+            "type": "DataWarehouse",
+            "typeProperties": {
+              "artifactId": "e4ef323f-de18-8ccd-43b7-b933c540ca12",
+              "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
+              "workspaceId": "00000000-0000-0000-0000-000000000000"
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "log_pipeline_failed",
+        "dependsOn": [
+          {
+            "activity": "filter_empty",
+            "dependencyConditions": [
+              "Completed"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "Filter",
+        "typeProperties": {
+          "items": {
+            "value": "@variables('error_arr')",
+            "type": "Expression"
+          },
+          "condition": {
+            "value": "@not(empty(item()))",
+            "type": "Expression"
+          }
+        },
+        "name": "filter_empty",
+        "dependsOn": [
+          {
+            "activity": "store_errors",
+            "dependencyConditions": [
+              "Completed"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "SetVariable",
+        "typeProperties": {
+          "variableName": "error_arr",
+          "value": {
+            "value": "@createArray(\n    coalesce(activity('df_gdp_yearly')?.error?.message, ''),\n    coalesce(activity('silver_gdp')?.error?.message, ''),\n    coalesce(activity('gold_gdp')?.error?.message, ''),\n    coalesce(activity('seed_taxi_partitions')?.error?.message, ''),\n    coalesce(activity('seed_air_measurement_partitions')?.error?.message, ''),\n    coalesce(activity('fetch_openaq_api_key')?.error?.message, ''),\n    coalesce(activity('df_bronze_openaq_locs')?.error?.message, ''),\n    coalesce(activity('bronze_taxi_zones_shape')?.error?.message, ''),\n    coalesce(activity('silver_openaq_sensor_zones')?.error?.message, ''),\n    coalesce(activity('gold_seed_dimensions')?.error?.message, '')\n)",
+            "type": "Expression"
+          }
+        },
+        "policy": {
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "store_errors",
+        "dependsOn": [
+          {
+            "activity": "log_pipeline_succeeded",
+            "dependencyConditions": [
+              "Skipped"
+            ]
+          }
+        ]
+      }
+    ],
+    "libraryVariables": {
+      "taxi": {
+        "type": "String",
+        "variableName": "yellow_taxi",
+        "libraryName": "bronze_source_names"
+      },
+      "openaq": {
+        "type": "String",
+        "variableName": "openaq",
+        "libraryName": "bronze_source_names"
+      }
+    },
+    "variables": {
+      "layer": {
+        "type": "String",
+        "defaultValue": "seed"
+      },
+      "ingestion_table": {
+        "type": "String",
+        "defaultValue": "meta.ingestion_control"
+      },
+      "date_from": {
+        "type": "String",
+        "defaultValue": "2023-01"
+      },
+      "date_to": {
+        "type": "String",
+        "defaultValue": "2024-12"
+      },
+      "taxi_template": {
+        "type": "String",
+        "defaultValue": "yellow_tripdata_{yyyy-mm}.parquet"
+      },
+      "air_template": {
+        "type": "String"
+      },
+      "error_arr": {
+        "type": "Array"
+      }
+    },
+    "concurrency": 1
+  }
+}

@@ -26,13 +26,35 @@
 
 # CELL ********************
 
+import os
+from pathlib import Path
+import zipfile
+import io
+import requests
 import geopandas as gpd
 from pyspark.sql import functions as F
 from pyspark.sql.types import StructType, StructField, IntegerType, StringType
 
-# BRONZE_PATH = notebookutils.variableLibrary.getLibrary('storage_lib').bronze_path
-# SHAPE_FILE = BRONZE_PATH + '/Files/reference/taxi_zones/taxi_zones.shp'
-SHAPE_FILE = '/lakehouse/default/Files/reference/taxi_zones/taxi_zones.shp'
+SHAPE_DIR = '/lakehouse/default/Files/reference/taxi_zones'
+SHAPE_FILE = f'{SHAPE_DIR}/taxi_zones.shp'
+PARENT_DIR = '/lakehouse/default/Files/reference'
+SOURCE_URL = 'https://d37ci6vzurychx.cloudfront.net/misc/taxi_zones.zip'
+
+if not os.path.exists(SHAPE_FILE):
+    Path(PARENT_DIR).mkdir(parents=True, exist_ok=True)
+    resp = requests.get(SOURCE_URL, timeout=60)
+    resp.raise_for_status()
+    with zipfile.ZipFile(io.BytesIO(resp.content)) as zf:
+        zf.extractall(PARENT_DIR)
+
+# METADATA ********************
+
+# META {
+# META   "language": "python",
+# META   "language_group": "synapse_pyspark"
+# META }
+
+# CELL ********************
 
 gdf = gpd.read_file(SHAPE_FILE)
 gdf = gdf.to_crs(4326)

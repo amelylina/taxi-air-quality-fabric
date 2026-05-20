@@ -26,12 +26,25 @@
 import com.microsoft.spark.fabric
 from com.microsoft.spark.fabric.Constants import Constants
 from pyspark.sql import functions as F, DataFrame
+import requests
+import os
+from pathlib import Path
+import io
 
 BRONZE_PATH = notebookutils.variableLibrary.getLibrary('storage_lib').bronze_path
 WAREHOUSE_NAME = "wh_gold"
 
 ZONE_TABLE = WAREHOUSE_NAME + ".dbo.dm_zone"
-ZONE_FILE = BRONZE_PATH + "/Files/reference/taxi_zone_lookup.csv"
+ZONE_DIR = '/lakehouse/default/Files/reference/
+ZONE_FILE = ZONE_DIR + 'taxi_zone_lookup.csv'
+SOURCE_URL = 'https://d37ci6vzurychx.cloudfront.net/misc/taxi_zone_lookup.csv'
+
+if not os.path.exists(ZONE_FILE):
+    Path(ZONE_DIR).mkdir(parents=True, exist_ok=True)
+    resp = requests.get(SOURCE_URL, timeout=60)
+    resp.raise_for_status()
+    with open(ZONE_FILE, 'wb') as f:
+        f.write(resp.content)
 
 col_map = {
     "LocationID" : "zone_id",
