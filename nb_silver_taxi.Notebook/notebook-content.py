@@ -183,7 +183,7 @@ if normalized_dfs:
 
     new_data = []
     for pk, cnt in rows_by_partition.items():
-        new_data.append({"partition_key":pk,"silver_status":"succeeded","silver_rows_written":cnt,"silver_error_message":None})
+        new_data.append({"partition_key":pk,"silver_status":"succeeded","silver_rows_written":cnt,"silver_error_message":None,"source_name":SOURCE_NAME})
 
     for pk, err in failed_partitions:
         new_data.append({"partition_key":pk,"silver_status":"failed","silver_rows_written":None,"silver_error_message":err})
@@ -223,9 +223,13 @@ try:
     with conn.cursor() as cur:
         cur.executemany(
             """
-            UPDATE meta.ingestion_control 
-            SET silver_status=%(silver_status)s, silver_rows_written=%(silver_rows_written)s, silver_error_message=%(silver_error_message)s
-            WHERE partition_key=%(partition_key)s
+            EXEC meta.update_partition_status
+                @source_name = %(source_name)s,
+                @partition_key = %(partition_key)s,
+                @layer = 'silver',
+                @new_status = %(silver_status)s,
+                @rows_written = %(silver_rows_written)s,
+                @error_message = %(silver_error_message)s;
             """,
             new_data
         )

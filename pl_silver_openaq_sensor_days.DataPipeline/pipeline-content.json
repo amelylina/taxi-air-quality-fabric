@@ -421,6 +421,7 @@
       "error_arr": {
         "type": "Array"
       }
-    }
+    },
+    "concurrency": 1
   }
 }

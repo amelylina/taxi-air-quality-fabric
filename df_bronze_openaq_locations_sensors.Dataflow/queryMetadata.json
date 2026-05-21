@@ -7,9 +7,9 @@
   "queryGroups": [],
   "documentLocale": "en-US",
   "queriesMetadata": {
-    "OPENAQKEY": {
-      "queryId": "56c54028-29e0-4fd2-93a9-7c14411b23aa",
-      "queryName": "OPENAQKEY",
+    "APIKEY": {
+      "queryId": "826ce4ac-6f11-4ce1-bfa0-6812d8c8ba43",
+      "queryName": "APIKEY",
       "loadEnabled": false
     },
     "location_date_sensor": {
@@ -32,14 +32,14 @@
   },
   "connections": [
     {
-      "path": "https://api.openaq.org/",
-      "kind": "Web",
-      "connectionId": "{\"ClusterId\":\"54570b5d-d828-472e-bce9-6b634109dc64\",\"DatasourceId\":\"016beab3-6674-4064-84d2-1bea69cbb591\"}"
-    },
-    {
       "path": "Lakehouse",
       "kind": "Lakehouse",
       "connectionId": "{\"ClusterId\":\"54570b5d-d828-472e-bce9-6b634109dc64\",\"DatasourceId\":\"5326ac96-ccd9-46e2-a253-75fe431072a4\"}"
+    },
+    {
+      "path": "https://api.openaq.org/",
+      "kind": "Web",
+      "connectionId": "{\"ClusterId\":\"54570b5d-d828-472e-bce9-6b634109dc64\",\"DatasourceId\":\"fc52974f-846e-4448-b6ee-8533adfd290c\"}"
     }
   ],
   "parametric": true

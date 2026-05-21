@@ -27,7 +27,6 @@ import com.microsoft.spark.fabric
 from com.microsoft.spark.fabric.Constants import Constants
 from pyspark.sql import functions as F, DataFrame
 import requests
-import os
 from pathlib import Path
 import io
 
@@ -35,15 +34,16 @@ BRONZE_PATH = notebookutils.variableLibrary.getLibrary('storage_lib').bronze_pat
 WAREHOUSE_NAME = "wh_gold"
 
 ZONE_TABLE = WAREHOUSE_NAME + ".dbo.dm_zone"
-ZONE_DIR = '/lakehouse/default/Files/reference/
-ZONE_FILE = ZONE_DIR + 'taxi_zone_lookup.csv'
 SOURCE_URL = 'https://d37ci6vzurychx.cloudfront.net/misc/taxi_zone_lookup.csv'
+ZONE_DIR = "/lakehouse/default/Files/reference"
+ZONE_PATH = f"{ZONE_DIR}/taxi_zone_lookup.csv"
+ZONE_FILE = f"file:{ZONE_PATH}"
 
-if not os.path.exists(ZONE_FILE):
+if not Path(ZONE_PATH).exists():
     Path(ZONE_DIR).mkdir(parents=True, exist_ok=True)
     resp = requests.get(SOURCE_URL, timeout=60)
     resp.raise_for_status()
-    with open(ZONE_FILE, 'wb') as f:
+    with open(ZONE_PATH, 'wb') as f:
         f.write(resp.content)
 
 col_map = {

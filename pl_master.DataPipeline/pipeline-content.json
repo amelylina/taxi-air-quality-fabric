@@ -102,6 +102,12 @@
             "dependencyConditions": [
               "Succeeded"
             ]
+          },
+          {
+            "activity": "log_pipeline_succeeded",
+            "dependencyConditions": [
+              "Skipped"
+            ]
           }
         ]
       },

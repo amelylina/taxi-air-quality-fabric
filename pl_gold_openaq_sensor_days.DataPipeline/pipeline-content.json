@@ -259,7 +259,10 @@
           "storedProcedureName": "[meta].[log_pipeline_start]",
           "storedProcedureParameters": {
             "layer": {
-              "value": "gold",
+              "value": {
+                "value": "@variables('layer')",
+                "type": "Expression"
+              },
               "type": "String"
             },
             "pipeline_name": {

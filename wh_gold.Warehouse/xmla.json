@@ -17,6 +17,21 @@
         "sourceLineageTag": "[dbo].[dm_air_measurement]",
         "columns": [
           {
+            "name": "p_id",
+            "dataType": "int64",
+            "sourceColumn": "p_id",
+            "formatString": "0",
+            "sourceProviderType": "int",
+            "sourceLineageTag": "p_id",
+            "summarizeBy": "sum",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ]
+          },
+          {
             "name": "p_name",
             "dataType": "string",
             "sourceColumn": "p_name",
@@ -51,21 +66,6 @@
             "sourceProviderType": "varchar",
             "sourceLineageTag": "p_display_name",
             "summarizeBy": "none",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ]
-          },
-          {
-            "name": "p_id",
-            "dataType": "int64",
-            "sourceColumn": "p_id",
-            "formatString": "0",
-            "sourceProviderType": "int",
-            "sourceLineageTag": "p_id",
-            "summarizeBy": "sum",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -728,20 +728,6 @@
             ]
           },
           {
-            "name": "country_code",
-            "dataType": "string",
-            "sourceColumn": "country_code",
-            "sourceProviderType": "varchar",
-            "sourceLineageTag": "country_code",
-            "summarizeBy": "none",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ]
-          },
-          {
             "name": "gdp_usd",
             "dataType": "double",
             "sourceColumn": "gdp_usd",
@@ -756,6 +742,20 @@
               {
                 "name": "PBI_FormatHint",
                 "value": "{\"isGeneralNumber\":true}"
+              }
+            ]
+          },
+          {
+            "name": "country_code",
+            "dataType": "string",
+            "sourceColumn": "country_code",
+            "sourceProviderType": "varchar",
+            "sourceLineageTag": "country_code",
+            "summarizeBy": "none",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
               }
             ]
           }
@@ -938,526 +938,6 @@
             "source": {
               "type": "entity",
               "entityName": "fct_taxi_daily",
-              "expressionSource": "DatabaseQuery",
-              "schemaName": "dbo"
-            }
-          }
-        ],
-        "annotations": [
-          {
-            "name": "IsTableInBiModel",
-            "value": "False"
-          }
-        ]
-      },
-      {
-        "name": "vw_air_quality_daily",
-        "sourceLineageTag": "[dbo].[vw_air_quality_daily]",
-        "columns": [
-          {
-            "name": "date_key",
-            "dataType": "int64",
-            "sourceColumn": "date_key",
-            "formatString": "0",
-            "sourceProviderType": "int",
-            "sourceLineageTag": "date_key",
-            "summarizeBy": "sum",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ]
-          },
-          {
-            "name": "zone_id",
-            "dataType": "int64",
-            "sourceColumn": "zone_id",
-            "formatString": "0",
-            "sourceProviderType": "int",
-            "sourceLineageTag": "zone_id",
-            "summarizeBy": "sum",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ]
-          },
-          {
-            "name": "pm25_avg",
-            "dataType": "double",
-            "sourceColumn": "pm25_avg",
-            "sourceProviderType": "float",
-            "sourceLineageTag": "pm25_avg",
-            "summarizeBy": "sum",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
-              }
-            ]
-          },
-          {
-            "name": "no2_avg",
-            "dataType": "double",
-            "sourceColumn": "no2_avg",
-            "sourceProviderType": "float",
-            "sourceLineageTag": "no2_avg",
-            "summarizeBy": "sum",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
-              }
-            ]
-          },
-          {
-            "name": "o3_avg",
-            "dataType": "double",
-            "sourceColumn": "o3_avg",
-            "sourceProviderType": "float",
-            "sourceLineageTag": "o3_avg",
-            "summarizeBy": "sum",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
-              }
-            ]
-          },
-          {
-            "name": "pm10_avg",
-            "dataType": "double",
-            "sourceColumn": "pm10_avg",
-            "sourceProviderType": "float",
-            "sourceLineageTag": "pm10_avg",
-            "summarizeBy": "sum",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
-              }
-            ]
-          },
-          {
-            "name": "pm25_samples",
-            "dataType": "int64",
-            "sourceColumn": "pm25_samples",
-            "formatString": "0",
-            "sourceProviderType": "bigint",
-            "sourceLineageTag": "pm25_samples",
-            "summarizeBy": "sum",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ]
-          },
-          {
-            "name": "no2_samples",
-            "dataType": "int64",
-            "sourceColumn": "no2_samples",
-            "formatString": "0",
-            "sourceProviderType": "bigint",
-            "sourceLineageTag": "no2_samples",
-            "summarizeBy": "sum",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ]
-          }
-        ],
-        "partitions": [
-          {
-            "name": "{{Partition_Name}}",
-            "mode": "directLake",
-            "source": {
-              "type": "entity",
-              "entityName": "vw_air_quality_daily",
-              "expressionSource": "DatabaseQuery",
-              "schemaName": "dbo"
-            }
-          }
-        ],
-        "annotations": [
-          {
-            "name": "IsTableInBiModel",
-            "value": "False"
-          }
-        ]
-      },
-      {
-        "name": "vw_mobility_air_economy_daily_US",
-        "sourceLineageTag": "[dbo].[vw_mobility_air_economy_daily_US]",
-        "columns": [
-          {
-            "name": "date",
-            "dataType": "dateTime",
-            "sourceColumn": "date",
-            "formatString": "General Date",
-            "sourceProviderType": "date",
-            "sourceLineageTag": "date",
-            "summarizeBy": "none",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ]
-          },
-          {
-            "name": "zone_name",
-            "dataType": "string",
-            "sourceColumn": "zone_name",
-            "sourceProviderType": "varchar",
-            "sourceLineageTag": "zone_name",
-            "summarizeBy": "none",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ]
-          },
-          {
-            "name": "borough",
-            "dataType": "string",
-            "sourceColumn": "borough",
-            "sourceProviderType": "varchar",
-            "sourceLineageTag": "borough",
-            "summarizeBy": "none",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ]
-          },
-          {
-            "name": "trip_count",
-            "dataType": "int64",
-            "sourceColumn": "trip_count",
-            "formatString": "0",
-            "sourceProviderType": "bigint",
-            "sourceLineageTag": "trip_count",
-            "summarizeBy": "sum",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ]
-          },
-          {
-            "name": "total_revenue_usd",
-            "dataType": "double",
-            "sourceColumn": "total_revenue_usd",
-            "sourceProviderType": "float",
-            "sourceLineageTag": "total_revenue_usd",
-            "summarizeBy": "sum",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
-              }
-            ]
-          },
-          {
-            "name": "total_revenue_eur",
-            "dataType": "double",
-            "sourceColumn": "total_revenue_eur",
-            "sourceProviderType": "float",
-            "sourceLineageTag": "total_revenue_eur",
-            "summarizeBy": "sum",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
-              }
-            ]
-          },
-          {
-            "name": "pm25_avg",
-            "dataType": "double",
-            "sourceColumn": "pm25_avg",
-            "sourceProviderType": "float",
-            "sourceLineageTag": "pm25_avg",
-            "summarizeBy": "sum",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
-              }
-            ]
-          },
-          {
-            "name": "no2_avg",
-            "dataType": "double",
-            "sourceColumn": "no2_avg",
-            "sourceProviderType": "float",
-            "sourceLineageTag": "no2_avg",
-            "summarizeBy": "sum",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
-              }
-            ]
-          },
-          {
-            "name": "gdp_usd",
-            "dataType": "double",
-            "sourceColumn": "gdp_usd",
-            "sourceProviderType": "decimal",
-            "sourceLineageTag": "gdp_usd",
-            "summarizeBy": "sum",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
-              }
-            ]
-          }
-        ],
-        "partitions": [
-          {
-            "name": "{{Partition_Name}}",
-            "mode": "directLake",
-            "source": {
-              "type": "entity",
-              "entityName": "vw_mobility_air_economy_daily_US",
-              "expressionSource": "DatabaseQuery",
-              "schemaName": "dbo"
-            }
-          }
-        ],
-        "annotations": [
-          {
-            "name": "IsTableInBiModel",
-            "value": "False"
-          }
-        ]
-      },
-      {
-        "name": "vw_taxi_daily",
-        "sourceLineageTag": "[dbo].[vw_taxi_daily]",
-        "columns": [
-          {
-            "name": "date_key",
-            "dataType": "int64",
-            "sourceColumn": "date_key",
-            "formatString": "0",
-            "sourceProviderType": "int",
-            "sourceLineageTag": "date_key",
-            "summarizeBy": "sum",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ]
-          },
-          {
-            "name": "pickup_zone_id",
-            "dataType": "int64",
-            "sourceColumn": "pickup_zone_id",
-            "formatString": "0",
-            "sourceProviderType": "int",
-            "sourceLineageTag": "pickup_zone_id",
-            "summarizeBy": "sum",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ]
-          },
-          {
-            "name": "trip_count",
-            "dataType": "int64",
-            "sourceColumn": "trip_count",
-            "formatString": "0",
-            "sourceProviderType": "bigint",
-            "sourceLineageTag": "trip_count",
-            "summarizeBy": "sum",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ]
-          },
-          {
-            "name": "total_fare_usd",
-            "dataType": "double",
-            "sourceColumn": "total_fare_usd",
-            "sourceProviderType": "float",
-            "sourceLineageTag": "total_fare_usd",
-            "summarizeBy": "sum",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
-              }
-            ]
-          },
-          {
-            "name": "total_revenue_usd",
-            "dataType": "double",
-            "sourceColumn": "total_revenue_usd",
-            "sourceProviderType": "float",
-            "sourceLineageTag": "total_revenue_usd",
-            "summarizeBy": "sum",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
-              }
-            ]
-          },
-          {
-            "name": "total_distance_miles",
-            "dataType": "double",
-            "sourceColumn": "total_distance_miles",
-            "sourceProviderType": "float",
-            "sourceLineageTag": "total_distance_miles",
-            "summarizeBy": "sum",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
-              }
-            ]
-          },
-          {
-            "name": "total_passengers",
-            "dataType": "int64",
-            "sourceColumn": "total_passengers",
-            "formatString": "0",
-            "sourceProviderType": "int",
-            "sourceLineageTag": "total_passengers",
-            "summarizeBy": "sum",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ]
-          },
-          {
-            "name": "avg_trip_duration_min",
-            "dataType": "double",
-            "sourceColumn": "avg_trip_duration_min",
-            "sourceProviderType": "float",
-            "sourceLineageTag": "avg_trip_duration_min",
-            "summarizeBy": "sum",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
-              }
-            ]
-          },
-          {
-            "name": "revenue_credit_usd",
-            "dataType": "double",
-            "sourceColumn": "revenue_credit_usd",
-            "sourceProviderType": "float",
-            "sourceLineageTag": "revenue_credit_usd",
-            "summarizeBy": "sum",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
-              }
-            ]
-          },
-          {
-            "name": "revenue_cash_usd",
-            "dataType": "double",
-            "sourceColumn": "revenue_cash_usd",
-            "sourceProviderType": "float",
-            "sourceLineageTag": "revenue_cash_usd",
-            "summarizeBy": "sum",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
-              }
-            ]
-          }
-        ],
-        "partitions": [
-          {
-            "name": "{{Partition_Name}}",
-            "mode": "directLake",
-            "source": {
-              "type": "entity",
-              "entityName": "vw_taxi_daily",
               "expressionSource": "DatabaseQuery",
               "schemaName": "dbo"
             }

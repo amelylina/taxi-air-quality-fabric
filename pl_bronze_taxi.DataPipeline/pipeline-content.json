@@ -375,6 +375,22 @@
                   ]
                 }
               ]
+            },
+            {
+              "type": "AppendVariable",
+              "typeProperties": {
+                "variableName": "failed_partitions",
+                "value": "@item().partition_key"
+              },
+              "name": "append_failed",
+              "dependsOn": [
+                {
+                  "activity": "mark_partition_failed",
+                  "dependencyConditions": [
+                    "Completed"
+                  ]
+                }
+              ]
             }
           ]
         },
@@ -394,7 +410,10 @@
           "storedProcedureName": "[meta].[log_pipeline_start]",
           "storedProcedureParameters": {
             "layer": {
-              "value": "silver",
+              "value": {
+                "value": "@variables('layer')",
+                "type": "Expression"
+              },
               "type": "String"
             },
             "pipeline_name": {
@@ -441,6 +460,10 @@
           "storedProcedureName": "[meta].[log_pipeline_update]",
           "storedProcedureParameters": {
             "message": {
+              "value": {
+                "value": "@concat(\n    'Succeeded: ',\n    string(sub(pipeline().parameters.claim_limit, length(variables('failed_partitions')))),\n    ' partitions out of ',\n    string(pipeline().parameters.claim_limit)\n)",
+                "type": "Expression"
+              },
               "type": "String"
             },
             "run_id": {
@@ -451,6 +474,7 @@
               "type": "String"
             },
             "status": {
+              "value": "succeeded",
               "type": "String"
             }
           }
@@ -544,10 +568,7 @@
           "storedProcedureName": "[meta].[log_pipeline_update]",
           "storedProcedureParameters": {
             "message": {
-              "value": {
-                "value": "@activity('copy_parquet_to_bronze').error.message",
-                "type": "Expression"
-              },
+              "value": "Failed to load partitions from source",
               "type": "String"
             },
             "run_id": {
@@ -610,6 +631,9 @@
       "layer": {
         "type": "String",
         "defaultValue": "bronze"
+      },
+      "failed_partitions": {
+        "type": "Array"
       }
     },
     "concurrency": 1

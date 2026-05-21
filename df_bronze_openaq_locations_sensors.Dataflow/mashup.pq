@@ -1,10 +1,9 @@
 [DefaultOutputDestinationSettings = [DestinationDefinition = [Kind = "Reference", QueryName = "DefaultDestination", IsNewTarget = true], UpdateMethod = [Kind = "Replace"], DestinationTypeSettings = [Kind = "Table"]], StagingDefinition = [Kind = "FastCopy"]]
 section Section1;
-[Description = "API-Key for OPENAQ"]
-shared OPENAQKEY = "" meta [IsParameterQuery = true, IsParameterQueryRequired = false, Type = type any, DefaultValue = ""];
+shared APIKEY = "" meta [IsParameterQuery = true, IsParameterQueryRequired = true, Type = type text];
 [DataDestinations = {[Definition = [Kind = "Reference", QueryName = "location_date_sensor_DataDestination", IsNewTarget = true], Settings = [Kind = "Manual", AllowCreation = true, ColumnSettings = [Mappings = {[SourceColumnName = "location_id", DestinationColumnName = "location_id"], [SourceColumnName = "name", DestinationColumnName = "name"], [SourceColumnName = "locality", DestinationColumnName = "locality"], [SourceColumnName = "timezone", DestinationColumnName = "timezone"], [SourceColumnName = "code", DestinationColumnName = "code"], [SourceColumnName = "latitude", DestinationColumnName = "latitude"], [SourceColumnName = "longitude", DestinationColumnName = "longitude"], [SourceColumnName = "sensor_id", DestinationColumnName = "sensor_id"], [SourceColumnName = "p_name", DestinationColumnName = "p_name"], [SourceColumnName = "p_units", DestinationColumnName = "p_units"], [SourceColumnName = "p_display_name", DestinationColumnName = "p_display_name"], [SourceColumnName = "first_datetime_utc", DestinationColumnName = "first_datetime_utc"], [SourceColumnName = "last_datetime_utc", DestinationColumnName = "last_datetime_utc"], [SourceColumnName = "provider_name", DestinationColumnName = "provider_name"], [SourceColumnName = "loaded_at", DestinationColumnName = "loaded_at"]}], DynamicSchema = false, UpdateMethod = [Kind = "Append"], TypeSettings = [Kind = "Table"]]]}]
 shared location_date_sensor = let
-    ApiKey = OPENAQKEY,
+    ApiKey = APIKEY,
     BaseUrl = "https://api.openaq.org",
 
     GetPage = (page as number) =>

@@ -57,6 +57,7 @@
           "storedProcedureName": "[meta].[log_pipeline_update]",
           "storedProcedureParameters": {
             "message": {
+              "value": null,
               "type": "String"
             },
             "run_id": {
@@ -95,12 +96,6 @@
         "dependsOn": [
           {
             "activity": "silver_openaq_sensor_zones",
-            "dependencyConditions": [
-              "Succeeded"
-            ]
-          },
-          {
-            "activity": "gold_gdp",
             "dependencyConditions": [
               "Succeeded"
             ]
@@ -162,7 +157,7 @@
             }
           },
           "sessionTag": {
-            "value": "@pipeline().RunId",
+            "value": "@replace(pipeline().RunId, '-', '_')",
             "type": "Expression"
           }
         },
@@ -226,7 +221,7 @@
             }
           },
           "sessionTag": {
-            "value": "@pipeline().RunId",
+            "value": "@replace(pipeline().RunId, '-', '_')",
             "type": "Expression"
           }
         },
@@ -307,12 +302,12 @@
           "notifyOption": "NoNotification",
           "dataflowType": "DataflowFabric",
           "parameters": {
-            "OPENAQKEY": {
+            "APIKEY": {
               "value": {
-                "value": "@activity('fetch_openaq_api_key').output.value",
+                "value": "@activity('fetch_openaq_api_key').output.value\n",
                 "type": "Expression"
               },
-              "type": "Any"
+              "type": "String"
             }
           }
         },
@@ -320,38 +315,13 @@
           "timeout": "0.12:00:00",
           "retry": 0,
           "retryIntervalInSeconds": 30,
-          "secureInput": false,
+          "secureInput": true,
           "secureOutput": false
         },
         "name": "df_bronze_openaq_locs",
         "dependsOn": [
           {
             "activity": "fetch_openaq_api_key",
-            "dependencyConditions": [
-              "Succeeded"
-            ]
-          }
-        ]
-      },
-      {
-        "type": "RefreshDataflow",
-        "typeProperties": {
-          "dataflowId": "7bd894cb-7da9-a19c-4d86-a77ad1dfebce",
-          "workspaceId": "00000000-0000-0000-0000-000000000000",
-          "notifyOption": "NoNotification",
-          "dataflowType": "DataflowFabric"
-        },
-        "policy": {
-          "timeout": "0.12:00:00",
-          "retry": 0,
-          "retryIntervalInSeconds": 30,
-          "secureInput": false,
-          "secureOutput": false
-        },
-        "name": "df_gdp_yearly",
-        "dependsOn": [
-          {
-            "activity": "log_pipeline_start",
             "dependencyConditions": [
               "Succeeded"
             ]
@@ -379,52 +349,6 @@
         "dependsOn": [
           {
             "activity": "log_pipeline_start",
-            "dependencyConditions": [
-              "Succeeded"
-            ]
-          }
-        ]
-      },
-      {
-        "type": "TridentNotebook",
-        "typeProperties": {
-          "notebookId": "1bcee7a3-421b-94f4-4c03-42732111c8f8",
-          "workspaceId": "00000000-0000-0000-0000-000000000000"
-        },
-        "policy": {
-          "timeout": "0.12:00:00",
-          "retry": 0,
-          "retryIntervalInSeconds": 30,
-          "secureInput": false,
-          "secureOutput": false
-        },
-        "name": "silver_gdp",
-        "dependsOn": [
-          {
-            "activity": "df_gdp_yearly",
-            "dependencyConditions": [
-              "Succeeded"
-            ]
-          }
-        ]
-      },
-      {
-        "type": "TridentNotebook",
-        "typeProperties": {
-          "notebookId": "8df8977e-2b45-b86f-45d0-19a63088e6b3",
-          "workspaceId": "00000000-0000-0000-0000-000000000000"
-        },
-        "policy": {
-          "timeout": "0.12:00:00",
-          "retry": 0,
-          "retryIntervalInSeconds": 30,
-          "secureInput": false,
-          "secureOutput": false
-        },
-        "name": "gold_gdp",
-        "dependsOn": [
-          {
-            "activity": "silver_gdp",
             "dependencyConditions": [
               "Succeeded"
             ]
@@ -535,7 +459,7 @@
         "typeProperties": {
           "variableName": "error_arr",
           "value": {
-            "value": "@createArray(\n    coalesce(activity('df_gdp_yearly')?.error?.message, ''),\n    coalesce(activity('silver_gdp')?.error?.message, ''),\n    coalesce(activity('gold_gdp')?.error?.message, ''),\n    coalesce(activity('seed_taxi_partitions')?.error?.message, ''),\n    coalesce(activity('seed_air_measurement_partitions')?.error?.message, ''),\n    coalesce(activity('fetch_openaq_api_key')?.error?.message, ''),\n    coalesce(activity('df_bronze_openaq_locs')?.error?.message, ''),\n    coalesce(activity('bronze_taxi_zones_shape')?.error?.message, ''),\n    coalesce(activity('silver_openaq_sensor_zones')?.error?.message, ''),\n    coalesce(activity('gold_seed_dimensions')?.error?.message, '')\n)",
+            "value": "@createArray(\n    coalesce(activity('seed_taxi_partitions')?.error?.message, ''),\n    coalesce(activity('seed_air_measurement_partitions')?.error?.message, ''),\n    coalesce(activity('fetch_openaq_api_key')?.error?.message, ''),\n    coalesce(activity('df_bronze_openaq_locs')?.error?.message, ''),\n    coalesce(activity('bronze_taxi_zones_shape')?.error?.message, ''),\n    coalesce(activity('silver_openaq_sensor_zones')?.error?.message, ''),\n    coalesce(activity('gold_seed_dimensions')?.error?.message, '')\n)",
             "type": "Expression"
           }
         },

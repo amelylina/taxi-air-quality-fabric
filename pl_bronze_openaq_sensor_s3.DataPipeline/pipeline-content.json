@@ -41,7 +41,10 @@
               "type": "String"
             },
             "limit": {
-              "value": "12",
+              "value": {
+                "value": "@pipeline().parameters.claim_limit",
+                "type": "Expression"
+              },
               "type": "Int32"
             },
             "source_name": {
@@ -359,6 +362,12 @@
         ]
       }
     ],
+    "parameters": {
+      "claim_limit": {
+        "type": "int",
+        "defaultValue": 12
+      }
+    },
     "libraryVariables": {
       "openaq": {
         "type": "String",
