@@ -1,0 +1,48 @@
+table dm_zone
+	lineageTag: fe199648-bd09-4ede-a611-47e363fef2b9
+	sourceLineageTag: [dbo].[dm_zone]
+
+	column zone_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 69e9f374-b683-4aff-9e7f-034d2c477147
+		sourceLineageTag: zone_id
+		summarizeBy: none
+		sourceColumn: zone_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column borough
+		dataType: string
+		lineageTag: e6adf517-0fda-4682-bd77-aa86f351b71e
+		sourceLineageTag: borough
+		summarizeBy: none
+		sourceColumn: borough
+
+		annotation SummarizationSetBy = Automatic
+
+	column zone_name
+		dataType: string
+		lineageTag: 5de01aa0-dcef-49d0-a9a1-3469f20d15de
+		sourceLineageTag: zone_name
+		summarizeBy: none
+		sourceColumn: zone_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column service_zone
+		dataType: string
+		lineageTag: 10746de2-e2d4-4627-af74-cc732fdcdcd8
+		sourceLineageTag: service_zone
+		summarizeBy: none
+		sourceColumn: service_zone
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dm_zone = entity
+		mode: directLake
+		source
+			entityName: dm_zone
+			schemaName: dbo
+			expressionSource: 'DirectLake - wh_gold'
+

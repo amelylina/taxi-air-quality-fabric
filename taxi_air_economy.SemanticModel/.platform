@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "taxi_air_economy"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "8ecb73ad-41ed-ac9f-4a39-131ff046d7ef"
+  }
+}

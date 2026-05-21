@@ -1,0 +1,30 @@
+table dm_currency
+	lineageTag: 94338afe-b1a9-440c-835c-27f0057e564a
+	sourceLineageTag: [dbo].[dm_currency]
+
+	column id
+		dataType: int64
+		formatString: 0
+		lineageTag: 0ba2ff92-e817-4213-8618-afe7de78bab3
+		sourceLineageTag: id
+		summarizeBy: none
+		sourceColumn: id
+
+		annotation SummarizationSetBy = Automatic
+
+	column currency_name
+		dataType: string
+		lineageTag: 8456b37e-52bb-4e84-8ac6-ac3f28c31376
+		sourceLineageTag: currency_name
+		summarizeBy: none
+		sourceColumn: currency_name
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dm_currency = entity
+		mode: directLake
+		source
+			entityName: dm_currency
+			schemaName: dbo
+			expressionSource: 'DirectLake - wh_gold'
+

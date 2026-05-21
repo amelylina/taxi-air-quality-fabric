@@ -1,0 +1,105 @@
+table fct_taxi_daily
+	lineageTag: 9db3abdf-6702-4b5a-8604-b3752b8eb04e
+	sourceLineageTag: [dbo].[fct_taxi_daily]
+
+	column pickup_zone_id
+		dataType: int64
+		formatString: 0
+		lineageTag: c921eb09-ddfa-4e4d-ae44-2c47acdccb4d
+		sourceLineageTag: pickup_zone_id
+		summarizeBy: none
+		sourceColumn: pickup_zone_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column payment_id
+		dataType: int64
+		formatString: 0
+		lineageTag: c5bb191c-1942-462d-877b-b52ff2e9cec9
+		sourceLineageTag: payment_id
+		summarizeBy: none
+		sourceColumn: payment_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column trip_count
+		dataType: int64
+		formatString: 0
+		lineageTag: 51896f2e-ae12-471b-bb80-01e502e1a2f8
+		sourceLineageTag: trip_count
+		summarizeBy: sum
+		sourceColumn: trip_count
+
+		annotation SummarizationSetBy = Automatic
+
+	column total_fare_usd
+		dataType: double
+		lineageTag: aad0ba31-474b-4aff-a71c-6305001a59b2
+		sourceLineageTag: total_fare_usd
+		summarizeBy: sum
+		sourceColumn: total_fare_usd
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column total_revenue_usd
+		dataType: double
+		lineageTag: 68b9bb78-5eb7-4b2d-ad78-e75b86b97846
+		sourceLineageTag: total_revenue_usd
+		summarizeBy: sum
+		sourceColumn: total_revenue_usd
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column total_distance_miles
+		dataType: double
+		lineageTag: 38be8dc2-ab81-41ea-90d8-3368c88fbe77
+		sourceLineageTag: total_distance_miles
+		summarizeBy: sum
+		sourceColumn: total_distance_miles
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column avg_trip_duration_min
+		dataType: double
+		lineageTag: dd9739c0-8934-4344-8dfd-54a0442de6e1
+		sourceLineageTag: avg_trip_duration_min
+		summarizeBy: sum
+		sourceColumn: avg_trip_duration_min
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column total_passengers
+		dataType: int64
+		formatString: 0
+		lineageTag: 1e336e40-15fd-4290-ab7d-bb611afa2fef
+		sourceLineageTag: total_passengers
+		summarizeBy: sum
+		sourceColumn: total_passengers
+
+		annotation SummarizationSetBy = Automatic
+
+	column date_key
+		dataType: int64
+		formatString: 0
+		lineageTag: f1dba5dc-f0fe-422e-acca-2c173936b2b0
+		sourceLineageTag: date_key
+		summarizeBy: none
+		sourceColumn: date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fct_taxi_daily = entity
+		mode: directLake
+		source
+			entityName: fct_taxi_daily
+			schemaName: dbo
+			expressionSource: 'DirectLake - wh_gold'
+

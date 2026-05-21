@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "NYC_Mobility_Air_Quality_Report"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "37649626-fbd3-8e6a-4bba-0f5e9a79b3bd"
+  }
+}

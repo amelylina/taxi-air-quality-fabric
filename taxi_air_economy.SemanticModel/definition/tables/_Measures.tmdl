@@ -1,0 +1,95 @@
+table _Measures
+	lineageTag: b7239941-420c-4e1e-b578-d7a40a7c939b
+
+	measure Trips = SUM(fct_taxi_daily[trip_count])
+		formatString: #,0
+		lineageTag: 6d8ce87d-8c3e-40a0-a623-109dde6062a9
+
+		annotation PBI_FormatHint = {"isDecimal":true}
+
+	measure 'Revenue USD' = SUM(fct_taxi_daily[total_revenue_usd])
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: e59fe0c9-b08d-49c8-afce-6ad52d5d5896
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure 'Avg Revenue per Trip USD' = DIVIDE([Revenue USD], [Trips])
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: 1a6d87c0-7f3f-4ba3-90ff-a56d978df43d
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure 'Total Distance' = SUM(fct_taxi_daily[total_distance_miles])
+		lineageTag: 34e87fd7-add0-4934-ae75-9a32f7ad3835
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Trips Hourly' = SUM(fct_taxi_hourly[trip_count])
+		formatString: 0
+		lineageTag: cc966f93-9407-4977-b986-f2f3dcddfae5
+
+	measure 'Avg Pollution' = AVERAGE(fct_air_quality[avg_value])
+		lineageTag: 3ff0b4ab-1844-45c9-b373-ae55da84fb81
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Avg Pollution Hourly' = AVERAGE(fct_air_quality_hourly[avg_value])
+		lineageTag: e4519022-ced3-4385-9169-9b86403fde11
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'EUR Rate' =
+			
+			CALCULATE(
+			    SELECTEDVALUE(fct_fx_daily[rate]),
+			    fct_fx_daily[id_cur_from] = 1,
+			    fct_fx_daily[id_cur_to] = 2
+			)
+		lineageTag: 7cae72f1-fb2d-4e50-9f2f-155fd1c6c618
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Revenue EUR' =
+			
+			SUMX(
+			    VALUES(dm_date[date_key]),
+			    [Revenue USD] *
+			    CALCULATE(
+			        AVERAGE(fct_fx_daily[rate]),
+			        fct_fx_daily[id_cur_from] = 1,
+			        fct_fx_daily[id_cur_to] = 2
+			    )
+			)
+		formatString: "€"\ #,0.00;-"€"\ #,0.00;"€"\ #,0.00
+		lineageTag: 6937c3c4-b909-4e12-87b2-d7df69bd854b
+
+	measure 'Avg Revenue per Trip EUR' = DIVIDE([Revenue EUR], [Trips])
+		formatString: "€"\ #,0.00;-"€"\ #,0.00;"€"\ #,0.00
+		lineageTag: 4874767c-e8aa-4d5b-ba9c-f09010c44525
+
+	measure 'Zones with Sensors' = ```
+			
+			  CALCULATE(
+			      DISTINCTCOUNT(fct_air_quality[zone_id]),
+			      NOT ISBLANK(fct_air_quality[avg_value])
+			  )
+			```
+		formatString: 0
+		lineageTag: 9ca4cf6a-8bee-4ae5-b5b3-ed4990186cdb
+
+	column Value
+		isHidden
+		formatString: 0
+		lineageTag: a23acc30-72e9-44b4-9f12-210d3ead8d9b
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Value]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition _Measures = calculated
+		mode: import
+		source = FILTER({0}, FALSE())
+
+	annotation PBI_Id = c6440c99ccf141a7ba4c252c39586f03
+

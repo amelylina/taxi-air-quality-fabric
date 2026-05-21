@@ -1,0 +1,48 @@
+table dm_air_measurement
+	lineageTag: 24d9ed85-e2f1-40d6-b6f1-ca0c4ddb7c15
+	sourceLineageTag: [dbo].[dm_air_measurement]
+
+	column p_id
+		dataType: int64
+		formatString: 0
+		lineageTag: b81e3b2b-3f28-4103-a851-68570f4b0ad5
+		sourceLineageTag: p_id
+		summarizeBy: none
+		sourceColumn: p_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column p_name
+		dataType: string
+		lineageTag: 35e60b6b-8340-4269-9329-2c6722429db5
+		sourceLineageTag: p_name
+		summarizeBy: none
+		sourceColumn: p_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column p_units
+		dataType: string
+		lineageTag: 008b55b4-9b79-498c-83e0-b7f6a598759d
+		sourceLineageTag: p_units
+		summarizeBy: none
+		sourceColumn: p_units
+
+		annotation SummarizationSetBy = Automatic
+
+	column p_display_name
+		dataType: string
+		lineageTag: b36b5b4f-009f-431f-a13a-5451eb55697d
+		sourceLineageTag: p_display_name
+		summarizeBy: none
+		sourceColumn: p_display_name
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dm_air_measurement = entity
+		mode: directLake
+		source
+			entityName: dm_air_measurement
+			schemaName: dbo
+			expressionSource: 'DirectLake - wh_gold'
+

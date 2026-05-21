@@ -1,0 +1,66 @@
+relationship c899444e-6b1a-bef6-6379-2dd11aa223d4
+	fromColumn: fct_taxi_daily.date_key
+	toColumn: dm_date.date_key
+
+relationship 0dbceba0-7460-6734-f454-c1b9caadf7c2
+	fromColumn: fct_taxi_hourly.date_key
+	toColumn: dm_date.date_key
+
+relationship 35481c3f-654a-2661-7506-16ff3dbe658f
+	fromColumn: fct_air_quality.date_key
+	toColumn: dm_date.date_key
+
+relationship d134a51f-701d-9c2e-1722-911bb157935e
+	fromColumn: fct_air_quality_hourly.date_key
+	toColumn: dm_date.date_key
+
+relationship a7e871bf-5d31-e2e9-16d0-f5b3f51b40d9
+	fromColumn: fct_fx_daily.date_key
+	toColumn: dm_date.date_key
+
+relationship 1e2ab67a-0e05-c4d8-7caf-4ab70ecf76dd
+	fromColumn: fct_taxi_daily.pickup_zone_id
+	toColumn: dm_zone.zone_id
+
+relationship 394608aa-475d-e25b-ee96-a96f08e0e30b
+	fromColumn: fct_taxi_hourly.pickup_zone_id
+	toColumn: dm_zone.zone_id
+
+relationship 0ded9f76-8569-4b43-04e1-6cd4dc1dbe27
+	fromColumn: fct_air_quality.zone_id
+	toColumn: dm_zone.zone_id
+
+relationship e72b8d4a-f007-fbfa-708b-287f9219c5e8
+	fromColumn: fct_air_quality_hourly.zone_id
+	toColumn: dm_zone.zone_id
+
+relationship ba567604-c772-7bd7-62b7-9e14be2c62d8
+	fromColumn: fct_taxi_daily.payment_id
+	toColumn: dm_payment.id
+
+relationship fb57fb5d-666c-5a57-7267-86174810fd31
+	fromColumn: fct_taxi_hourly.payment_id
+	toColumn: dm_payment.id
+
+relationship 42b6d02f-ed17-572d-1e18-a773935cf355
+	fromColumn: fct_air_quality.p_id
+	toColumn: dm_air_measurement.p_id
+
+relationship 22f0f4f9-5080-1df9-1017-5ed8aea6b415
+	fromColumn: fct_air_quality_hourly.p_id
+	toColumn: dm_air_measurement.p_id
+
+relationship 16448a90-efcd-b8db-882e-9d72d1aac9cc
+	fromColumn: fct_fx_daily.id_cur_from
+	toColumn: dm_currency.id
+
+relationship 62c5fd88-85d6-7560-04e1-3e9a78f9537c
+	isActive: false
+	fromColumn: fct_fx_daily.id_cur_to
+	toColumn: dm_currency.id
+
+relationship 987e14a2-725f-9e27-e0d2-a7fc81205716
+	toCardinality: many
+	fromColumn: dm_date.year
+	toColumn: fct_gdp_yearly.year
+

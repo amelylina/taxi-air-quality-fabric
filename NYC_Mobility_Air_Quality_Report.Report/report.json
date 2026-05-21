@@ -1,0 +1,360 @@
+{
+  "config": "{\"version\":\"5.73\",\"themeCollection\":{\"baseTheme\":{\"name\":\"CY26SU05\",\"type\":2,\"version\":{\"visual\":\"2.9.0\",\"report\":\"3.3.0\",\"page\":\"2.3.1\"}}},\"activeSectionIndex\":4,\"defaultDrillFilterOtherVisuals\":true,\"linguisticSchemaSyncVersion\":0,\"settings\":{\"useNewFilterPaneExperience\":true,\"allowChangeFilterTypes\":true,\"useStylableVisualContainerHeader\":true,\"queryLimitOption\":6,\"useEnhancedTooltips\":true,\"exportDataMode\":1,\"useDefaultAggregateDisplayName\":true},\"objects\":{\"section\":[{\"properties\":{\"verticalAlignment\":{\"expr\":{\"Literal\":{\"Value\":\"'Top'\"}}}}}],\"outspacePane\":[{\"properties\":{\"expanded\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]}}",
+  "layoutOptimization": 0,
+  "pods": [
+    {
+      "boundSection": "3d03fbf2aecf95576b25",
+      "config": "{}",
+      "name": "e92ba0b95f5a8062ff6f",
+      "parameters": "[{\"name\":\"fc480ec9331d490b5bc8\",\"boundFilter\":\"c12349e346935f43b7b8\",\"fieldExpr\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Entity\":\"fct_gdp_yearly\"}},\"Property\":\"country_code\"}}}]",
+      "type": 1
+    }
+  ],
+  "resourcePackages": [
+    {
+      "resourcePackage": {
+        "disabled": false,
+        "items": [
+          {
+            "name": "CY26SU05",
+            "path": "BaseThemes/CY26SU05.json",
+            "type": 202
+          }
+        ],
+        "name": "SharedResources",
+        "type": 2
+      }
+    }
+  ],
+  "sections": [
+    {
+      "config": "{}",
+      "displayName": "Long-term Mobility/Economy vs Environment",
+      "displayOption": 1,
+      "filters": "[{\"name\":\"c12349e346935f43b7b8\",\"expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Entity\":\"fct_gdp_yearly\"}},\"Property\":\"country_code\"}},\"filter\":{\"Version\":2,\"From\":[{\"Name\":\"f\",\"Entity\":\"fct_gdp_yearly\",\"Type\":0}],\"Where\":[{\"Condition\":{\"In\":{\"Expressions\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"f\"}},\"Property\":\"country_code\"}}],\"Values\":[[{\"Literal\":{\"Value\":\"'USA'\"}}]]}}}]},\"type\":\"Categorical\",\"howCreated\":5,\"objects\":{}}]",
+      "height": 720.00,
+      "name": "3d03fbf2aecf95576b25",
+      "ordinal": 4,
+      "visualContainers": [
+        {
+          "config": "{\"name\":\"1eee2ce9464b08ecb019\",\"layouts\":[{\"id\":0,\"position\":{\"x\":609.6128560993426,\"y\":0,\"z\":2,\"width\":670.3871439006574,\"height\":719.9415631848065,\"tabOrder\":2}}],\"singleVisual\":{\"visualType\":\"lineChart\",\"projections\":{\"Category\":[{\"queryRef\":\"fct_gdp_yearly.year\",\"active\":true}],\"Y\":[{\"queryRef\":\"Sum(fct_gdp_yearly.gdp_usd)\"}]},\"prototypeQuery\":{\"Version\":2,\"From\":[{\"Name\":\"f\",\"Entity\":\"fct_gdp_yearly\",\"Type\":0}],\"Select\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"f\"}},\"Property\":\"year\"},\"Name\":\"fct_gdp_yearly.year\",\"NativeReferenceName\":\"year\"},{\"Aggregation\":{\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"f\"}},\"Property\":\"gdp_usd\"}},\"Function\":0},\"Name\":\"Sum(fct_gdp_yearly.gdp_usd)\",\"NativeReferenceName\":\"Sum of gdp_usd\"}],\"OrderBy\":[{\"Direction\":2,\"Expression\":{\"Aggregation\":{\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"f\"}},\"Property\":\"gdp_usd\"}},\"Function\":0}}}]},\"drillFilterOtherVisuals\":true,\"hasDefaultSort\":true,\"vcObjects\":{\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'US GDP'\"}}}}}]}}}",
+          "filters": "[]",
+          "height": 719.94,
+          "width": 670.39,
+          "x": 609.61,
+          "y": 0.00,
+          "z": 2.00
+        },
+        {
+          "config": "{\"name\":\"510a7aac0d8ee6df793a\",\"layouts\":[{\"id\":0,\"position\":{\"x\":1238.3604424202995,\"y\":0,\"z\":3,\"width\":41.63955757970072,\"height\":39.97397527651269,\"tabOrder\":3}}],\"singleVisual\":{\"visualType\":\"actionButton\",\"drillFilterOtherVisuals\":true,\"objects\":{\"icon\":[{\"properties\":{\"shapeType\":{\"expr\":{\"Literal\":{\"Value\":\"'leftArrow'\"}}}},\"selector\":{\"id\":\"default\"}}]},\"vcObjects\":{\"visualLink\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}},\"type\":{\"expr\":{\"Literal\":{\"Value\":\"'PageNavigation'\"}}},\"navigationSection\":{\"expr\":{\"Literal\":{\"Value\":\"'5025d338b972f562f3dd'\"}}}}}]}},\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 39.97,
+          "width": 41.64,
+          "x": 1238.36,
+          "y": 0.00,
+          "z": 3.00
+        },
+        {
+          "config": "{\"name\":\"6be41024167afa0580bc\",\"layouts\":[{\"id\":0,\"position\":{\"x\":0,\"y\":348.939492517892,\"z\":1,\"width\":609.6031229668185,\"height\":370.5920624593364,\"tabOrder\":1}}],\"singleVisual\":{\"visualType\":\"lineChart\",\"projections\":{\"Category\":[{\"queryRef\":\"dm_date.year\",\"active\":true}],\"Y\":[{\"queryRef\":\"_Measures.Avg Pollution\"}]},\"prototypeQuery\":{\"Version\":2,\"From\":[{\"Name\":\"d\",\"Entity\":\"dm_date\",\"Type\":0},{\"Name\":\"_\",\"Entity\":\"_Measures\",\"Type\":0}],\"Select\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"year\"},\"Name\":\"dm_date.year\",\"NativeReferenceName\":\"year\"},{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"_\"}},\"Property\":\"Avg Pollution\"},\"Name\":\"_Measures.Avg Pollution\",\"NativeReferenceName\":\"Avg Pollution\"}],\"OrderBy\":[{\"Direction\":2,\"Expression\":{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"_\"}},\"Property\":\"Avg Pollution\"}}}]},\"drillFilterOtherVisuals\":true,\"hasDefaultSort\":true}}",
+          "filters": "[{\"expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Entity\":\"dm_date\"}},\"Property\":\"year\"}},\"filter\":{\"Version\":2,\"From\":[{\"Name\":\"d\",\"Entity\":\"dm_date\",\"Type\":0}],\"Where\":[{\"Condition\":{\"And\":{\"Left\":{\"Comparison\":{\"ComparisonKind\":4,\"Left\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"year\"}},\"Right\":{\"Literal\":{\"Value\":\"2024L\"}}}},\"Right\":{\"Comparison\":{\"ComparisonKind\":2,\"Left\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"year\"}},\"Right\":{\"Literal\":{\"Value\":\"2023L\"}}}}}}}]},\"type\":\"Advanced\",\"howCreated\":0,\"isHiddenInViewMode\":false}]",
+          "height": 370.59,
+          "width": 609.60,
+          "x": 0.00,
+          "y": 348.94,
+          "z": 1.00
+        },
+        {
+          "config": "{\"name\":\"9ba9268311c332a4ad96\",\"layouts\":[{\"id\":0,\"position\":{\"x\":0,\"y\":0,\"z\":0,\"width\":609.6031229668185,\"height\":348.939492517892,\"tabOrder\":0}}],\"singleVisual\":{\"visualType\":\"lineChart\",\"projections\":{\"Category\":[{\"queryRef\":\"dm_date.year\",\"active\":true}],\"Y\":[{\"queryRef\":\"_Measures.Trips\"}]},\"prototypeQuery\":{\"Version\":2,\"From\":[{\"Name\":\"d\",\"Entity\":\"dm_date\",\"Type\":0},{\"Name\":\"_\",\"Entity\":\"_Measures\",\"Type\":0}],\"Select\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"year\"},\"Name\":\"dm_date.year\",\"NativeReferenceName\":\"year\"},{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"_\"}},\"Property\":\"Trips\"},\"Name\":\"_Measures.Trips\",\"NativeReferenceName\":\"Trips\"}],\"OrderBy\":[{\"Direction\":2,\"Expression\":{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"_\"}},\"Property\":\"Trips\"}}}]},\"drillFilterOtherVisuals\":true,\"hasDefaultSort\":true}}",
+          "filters": "[{\"expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Entity\":\"dm_date\"}},\"Property\":\"year\"}},\"filter\":{\"Version\":2,\"From\":[{\"Name\":\"d\",\"Entity\":\"dm_date\",\"Type\":0}],\"Where\":[{\"Condition\":{\"And\":{\"Left\":{\"Comparison\":{\"ComparisonKind\":4,\"Left\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"year\"}},\"Right\":{\"Literal\":{\"Value\":\"2024L\"}}}},\"Right\":{\"Comparison\":{\"ComparisonKind\":2,\"Left\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"year\"}},\"Right\":{\"Literal\":{\"Value\":\"2023L\"}}}}}}}]},\"type\":\"Advanced\",\"howCreated\":0,\"isHiddenInViewMode\":false}]",
+          "height": 348.94,
+          "width": 609.60,
+          "x": 0.00,
+          "y": 0.00,
+          "z": 0.00
+        }
+      ],
+      "width": 1280.00
+    },
+    {
+      "config": "{}",
+      "displayName": "Revenue in USD vs EUR",
+      "displayOption": 1,
+      "filters": "[]",
+      "height": 720.00,
+      "name": "5025d338b972f562f3dd",
+      "ordinal": 3,
+      "visualContainers": [
+        {
+          "config": "{\"name\":\"062225f5273d2b95f6db\",\"layouts\":[{\"id\":0,\"position\":{\"x\":640.4163955757971,\"y\":0,\"z\":1000,\"width\":639.583604424203,\"height\":101.60052049446975,\"tabOrder\":3000}}],\"singleVisual\":{\"visualType\":\"cardVisual\",\"projections\":{\"Data\":[{\"queryRef\":\"_Measures.Avg Revenue per Trip USD\"}]},\"prototypeQuery\":{\"Version\":2,\"From\":[{\"Name\":\"_\",\"Entity\":\"_Measures\",\"Type\":0}],\"Select\":[{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"_\"}},\"Property\":\"Avg Revenue per Trip USD\"},\"Name\":\"_Measures.Avg Revenue per Trip USD\",\"NativeReferenceName\":\"Avg Revenue per Trip USD\"}],\"OrderBy\":[{\"Direction\":2,\"Expression\":{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"_\"}},\"Property\":\"Avg Revenue per Trip USD\"}}}]},\"drillFilterOtherVisuals\":true,\"hasDefaultSort\":true,\"objects\":{\"layout\":[{\"properties\":{\"alignment\":{\"expr\":{\"Literal\":{\"Value\":\"'middle'\"}}}}}],\"label\":[{\"properties\":{\"position\":{\"expr\":{\"Literal\":{\"Value\":\"'aboveValue'\"}}}},\"selector\":{\"id\":\"default\"}}],\"value\":[{\"properties\":{\"horizontalAlignment\":{\"expr\":{\"Literal\":{\"Value\":\"'center'\"}}}},\"selector\":{\"id\":\"default\"}}]}}}",
+          "filters": "[]",
+          "height": 101.60,
+          "width": 639.58,
+          "x": 640.42,
+          "y": 0.00,
+          "z": 1000.00
+        },
+        {
+          "config": "{\"name\":\"22708b3345c004bad7e4\",\"layouts\":[{\"id\":0,\"position\":{\"x\":0,\"y\":0,\"z\":0,\"width\":640.4163955757971,\"height\":101.60052049446975,\"tabOrder\":2000}}],\"singleVisual\":{\"visualType\":\"cardVisual\",\"projections\":{\"Data\":[{\"queryRef\":\"_Measures.Avg Revenue per Trip EUR\"}]},\"prototypeQuery\":{\"Version\":2,\"From\":[{\"Name\":\"_\",\"Entity\":\"_Measures\",\"Type\":0}],\"Select\":[{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"_\"}},\"Property\":\"Avg Revenue per Trip EUR\"},\"Name\":\"_Measures.Avg Revenue per Trip EUR\",\"NativeReferenceName\":\"Avg Revenue per Trip EUR\"}],\"OrderBy\":[{\"Direction\":2,\"Expression\":{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"_\"}},\"Property\":\"Avg Revenue per Trip EUR\"}}}]},\"drillFilterOtherVisuals\":true,\"hasDefaultSort\":true,\"objects\":{\"label\":[{\"properties\":{\"position\":{\"expr\":{\"Literal\":{\"Value\":\"'aboveValue'\"}}}},\"selector\":{\"id\":\"default\"}}],\"value\":[{\"properties\":{\"horizontalAlignment\":{\"expr\":{\"Literal\":{\"Value\":\"'center'\"}}}},\"selector\":{\"id\":\"default\"}}]}}}",
+          "filters": "[]",
+          "height": 101.60,
+          "width": 640.42,
+          "x": 0.00,
+          "y": 0.00,
+          "z": 0.00
+        },
+        {
+          "config": "{\"name\":\"3b88b0f911e6b338ca3c\",\"layouts\":[{\"id\":0,\"position\":{\"x\":1237.5276512687053,\"y\":0,\"z\":3002,\"width\":42.47234873129473,\"height\":39.97397527651269,\"tabOrder\":3002}}],\"singleVisual\":{\"visualType\":\"actionButton\",\"drillFilterOtherVisuals\":true,\"objects\":{\"icon\":[{\"properties\":{\"shapeType\":{\"expr\":{\"Literal\":{\"Value\":\"'rightArrow'\"}}}},\"selector\":{\"id\":\"default\"}}]},\"vcObjects\":{\"visualLink\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}},\"type\":{\"expr\":{\"Literal\":{\"Value\":\"'PageNavigation'\"}}},\"navigationSection\":{\"expr\":{\"Literal\":{\"Value\":\"'3d03fbf2aecf95576b25'\"}}}}}]}},\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 39.97,
+          "width": 42.47,
+          "x": 1237.53,
+          "y": 0.00,
+          "z": 3002.00
+        },
+        {
+          "config": "{\"name\":\"478d615f6318fbcad684\",\"layouts\":[{\"id\":0,\"position\":{\"x\":640,\"y\":102,\"width\":640,\"height\":618,\"z\":3000,\"tabOrder\":1000}}],\"singleVisual\":{\"visualType\":\"lineChart\",\"projections\":{\"Category\":[{\"queryRef\":\"dm_date.date\",\"active\":true}],\"Y\":[{\"queryRef\":\"_Measures.EUR Rate\"}]},\"prototypeQuery\":{\"Version\":2,\"From\":[{\"Name\":\"d\",\"Entity\":\"dm_date\",\"Type\":0},{\"Name\":\"_\",\"Entity\":\"_Measures\",\"Type\":0}],\"Select\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"date\"},\"Name\":\"dm_date.date\",\"NativeReferenceName\":\"date\"},{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"_\"}},\"Property\":\"EUR Rate\"},\"Name\":\"_Measures.EUR Rate\",\"NativeReferenceName\":\"EUR Rate\"}],\"OrderBy\":[{\"Direction\":1,\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"date\"}}}]},\"drillFilterOtherVisuals\":true,\"hasDefaultSort\":true,\"vcObjects\":{\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'USD → EUR Exchange Rate'\"}}}}}]}}}",
+          "filters": "[{\"expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Entity\":\"dm_date\"}},\"Property\":\"date\"}},\"filter\":{\"Version\":2,\"From\":[{\"Name\":\"d\",\"Entity\":\"dm_date\",\"Type\":0}],\"Where\":[{\"Condition\":{\"And\":{\"Left\":{\"Comparison\":{\"ComparisonKind\":2,\"Left\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"date\"}},\"Right\":{\"DateSpan\":{\"Expression\":{\"Literal\":{\"Value\":\"datetime'2023-01-01T00:00:00'\"}},\"TimeUnit\":5}}}},\"Right\":{\"Comparison\":{\"ComparisonKind\":4,\"Left\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"date\"}},\"Right\":{\"DateSpan\":{\"Expression\":{\"Literal\":{\"Value\":\"datetime'2024-12-31T00:00:00'\"}},\"TimeUnit\":5}}}}}}}]},\"type\":\"Advanced\",\"howCreated\":0,\"isHiddenInViewMode\":false}]",
+          "height": 618.00,
+          "width": 640.00,
+          "x": 640.00,
+          "y": 102.00,
+          "z": 3000.00
+        },
+        {
+          "config": "{\"name\":\"5117d3f047226d295821\",\"layouts\":[{\"id\":0,\"position\":{\"x\":0,\"y\":101.60052049446975,\"z\":2000,\"width\":640.4163955757971,\"height\":619.5966167859467,\"tabOrder\":0}}],\"singleVisual\":{\"visualType\":\"lineChart\",\"projections\":{\"Category\":[{\"queryRef\":\"dm_date.date\",\"active\":true}],\"Y\":[{\"queryRef\":\"_Measures.Revenue EUR\"},{\"queryRef\":\"_Measures.Revenue USD\"}]},\"prototypeQuery\":{\"Version\":2,\"From\":[{\"Name\":\"d\",\"Entity\":\"dm_date\",\"Type\":0},{\"Name\":\"_\",\"Entity\":\"_Measures\",\"Type\":0}],\"Select\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"date\"},\"Name\":\"dm_date.date\",\"NativeReferenceName\":\"date\"},{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"_\"}},\"Property\":\"Revenue EUR\"},\"Name\":\"_Measures.Revenue EUR\",\"NativeReferenceName\":\"Revenue EUR\"},{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"_\"}},\"Property\":\"Revenue USD\"},\"Name\":\"_Measures.Revenue USD\",\"NativeReferenceName\":\"Revenue USD\"}],\"OrderBy\":[{\"Direction\":1,\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"date\"}}}]},\"drillFilterOtherVisuals\":true,\"hasDefaultSort\":true,\"vcObjects\":{\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Monthly Revenue: USD vs EUR'\"}}}}}]}}}",
+          "filters": "[{\"expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Entity\":\"dm_date\"}},\"Property\":\"date\"}},\"filter\":{\"Version\":2,\"From\":[{\"Name\":\"d\",\"Entity\":\"dm_date\",\"Type\":0}],\"Where\":[{\"Condition\":{\"And\":{\"Left\":{\"Comparison\":{\"ComparisonKind\":2,\"Left\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"date\"}},\"Right\":{\"DateSpan\":{\"Expression\":{\"Literal\":{\"Value\":\"datetime'2023-01-01T00:00:00'\"}},\"TimeUnit\":5}}}},\"Right\":{\"Comparison\":{\"ComparisonKind\":4,\"Left\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"date\"}},\"Right\":{\"DateSpan\":{\"Expression\":{\"Literal\":{\"Value\":\"datetime'2024-12-31T00:00:00'\"}},\"TimeUnit\":5}}}}}}}]},\"type\":\"Advanced\",\"howCreated\":0,\"isHiddenInViewMode\":false}]",
+          "height": 619.60,
+          "width": 640.42,
+          "x": 0.00,
+          "y": 101.60,
+          "z": 2000.00
+        },
+        {
+          "config": "{\"name\":\"f0f06dcee34e9fe9af45\",\"layouts\":[{\"id\":0,\"position\":{\"x\":1194.2225113858167,\"y\":0,\"z\":3001,\"width\":43.305139882888746,\"height\":39.97397527651269,\"tabOrder\":3001}}],\"singleVisual\":{\"visualType\":\"actionButton\",\"drillFilterOtherVisuals\":true,\"objects\":{\"icon\":[{\"properties\":{\"shapeType\":{\"expr\":{\"Literal\":{\"Value\":\"'leftArrow'\"}}}},\"selector\":{\"id\":\"default\"}}]},\"vcObjects\":{\"visualLink\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}},\"type\":{\"expr\":{\"Literal\":{\"Value\":\"'PageNavigation'\"}}},\"navigationSection\":{\"expr\":{\"Literal\":{\"Value\":\"'f9bb677937df826675c1'\"}}}}}]}},\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 39.97,
+          "width": 43.31,
+          "x": 1194.22,
+          "y": 0.00,
+          "z": 3001.00
+        }
+      ],
+      "width": 1280.00
+    },
+    {
+      "config": "{}",
+      "displayName": "Traffic vs Air Quality",
+      "displayOption": 1,
+      "filters": "[]",
+      "height": 720.00,
+      "name": "61fe4147b0d756257663",
+      "ordinal": 1,
+      "visualContainers": [
+        {
+          "config": "{\"name\":\"3a0fef1630b1a2b4fc45\",\"layouts\":[{\"id\":0,\"position\":{\"x\":1194.2225113858167,\"y\":0,\"z\":2001,\"width\":42.47234873129473,\"height\":39.97397527651269,\"tabOrder\":2001}}],\"singleVisual\":{\"visualType\":\"actionButton\",\"drillFilterOtherVisuals\":true,\"objects\":{\"icon\":[{\"properties\":{\"shapeType\":{\"expr\":{\"Literal\":{\"Value\":\"'leftArrow'\"}}}},\"selector\":{\"id\":\"default\"}}]},\"vcObjects\":{\"visualLink\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}},\"type\":{\"expr\":{\"Literal\":{\"Value\":\"'PageNavigation'\"}}},\"navigationSection\":{\"expr\":{\"Literal\":{\"Value\":\"'cfbf9aa070e10f44bb67'\"}}}}}]}},\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 39.97,
+          "width": 42.47,
+          "x": 1194.22,
+          "y": 0.00,
+          "z": 2001.00
+        },
+        {
+          "config": "{\"name\":\"6ee805e8a85b7feb1424\",\"layouts\":[{\"id\":0,\"position\":{\"x\":1236.6948601171114,\"y\":0,\"z\":2002,\"width\":43.305139882888746,\"height\":39.97397527651269,\"tabOrder\":2002}}],\"singleVisual\":{\"visualType\":\"actionButton\",\"drillFilterOtherVisuals\":true,\"objects\":{\"icon\":[{\"properties\":{\"shapeType\":{\"expr\":{\"Literal\":{\"Value\":\"'rightArrow'\"}}}},\"selector\":{\"id\":\"default\"}}]},\"vcObjects\":{\"visualLink\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}},\"type\":{\"expr\":{\"Literal\":{\"Value\":\"'PageNavigation'\"}}},\"navigationSection\":{\"expr\":{\"Literal\":{\"Value\":\"'f9bb677937df826675c1'\"}}}}}]}},\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 39.97,
+          "width": 43.31,
+          "x": 1236.69,
+          "y": 0.00,
+          "z": 2002.00
+        },
+        {
+          "config": "{\"name\":\"a82b8693d2a9b7f9b3a5\",\"layouts\":[{\"id\":0,\"position\":{\"x\":0,\"y\":67.45608327911516,\"z\":1000,\"width\":1280,\"height\":326.45413142485364,\"tabOrder\":1000}}],\"singleVisual\":{\"visualType\":\"lineChart\",\"projections\":{\"Category\":[{\"queryRef\":\"dm_date.date\",\"active\":true}],\"Y\":[{\"queryRef\":\"_Measures.Trips\"}],\"Y2\":[{\"queryRef\":\"_Measures.Avg Pollution\"}]},\"prototypeQuery\":{\"Version\":2,\"From\":[{\"Name\":\"d\",\"Entity\":\"dm_date\",\"Type\":0},{\"Name\":\"_\",\"Entity\":\"_Measures\",\"Type\":0}],\"Select\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"date\"},\"Name\":\"dm_date.date\",\"NativeReferenceName\":\"date\"},{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"_\"}},\"Property\":\"Trips\"},\"Name\":\"_Measures.Trips\",\"NativeReferenceName\":\"Trips\"},{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"_\"}},\"Property\":\"Avg Pollution\"},\"Name\":\"_Measures.Avg Pollution\",\"NativeReferenceName\":\"Avg Pollution\"}],\"OrderBy\":[{\"Direction\":1,\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"date\"}}}]},\"drillFilterOtherVisuals\":true,\"hasDefaultSort\":true,\"vcObjects\":{\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Daily Trips vs Daily Avg Pollution'\"}}}}}]}}}",
+          "filters": "[{\"expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Entity\":\"dm_date\"}},\"Property\":\"date\"}},\"filter\":{\"Version\":2,\"From\":[{\"Name\":\"d\",\"Entity\":\"dm_date\",\"Type\":0}],\"Where\":[{\"Condition\":{\"And\":{\"Left\":{\"Comparison\":{\"ComparisonKind\":2,\"Left\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"date\"}},\"Right\":{\"DateSpan\":{\"Expression\":{\"Literal\":{\"Value\":\"datetime'2023-01-01T00:00:00'\"}},\"TimeUnit\":5}}}},\"Right\":{\"Comparison\":{\"ComparisonKind\":4,\"Left\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"date\"}},\"Right\":{\"DateSpan\":{\"Expression\":{\"Literal\":{\"Value\":\"datetime'2024-12-31T00:00:00'\"}},\"TimeUnit\":5}}}}}}}]},\"type\":\"Advanced\",\"howCreated\":0,\"isHiddenInViewMode\":false}]",
+          "height": 326.45,
+          "width": 1280.00,
+          "x": 0.00,
+          "y": 67.46,
+          "z": 1000.00
+        },
+        {
+          "config": "{\"name\":\"d3b89e55178ef312fa72\",\"layouts\":[{\"id\":0,\"position\":{\"x\":0,\"y\":0,\"z\":0,\"width\":274.82108002602473,\"height\":67.45608327911516,\"tabOrder\":0}}],\"singleVisual\":{\"visualType\":\"slicer\",\"projections\":{\"Values\":[{\"queryRef\":\"dm_zone.borough\",\"active\":true}]},\"prototypeQuery\":{\"Version\":2,\"From\":[{\"Name\":\"d\",\"Entity\":\"dm_zone\",\"Type\":0}],\"Select\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"borough\"},\"Name\":\"dm_zone.borough\",\"NativeReferenceName\":\"borough\"}]},\"drillFilterOtherVisuals\":true,\"objects\":{\"data\":[{\"properties\":{\"mode\":{\"expr\":{\"Literal\":{\"Value\":\"'Dropdown'\"}}}}}],\"general\":[{\"properties\":{}}]}}}",
+          "filters": "[]",
+          "height": 67.46,
+          "width": 274.82,
+          "x": 0.00,
+          "y": 0.00,
+          "z": 0.00
+        },
+        {
+          "config": "{\"name\":\"ed38d08f5a9af226753c\",\"layouts\":[{\"id\":0,\"position\":{\"x\":0,\"y\":403.90370852309695,\"z\":2000,\"width\":1280,\"height\":317.2934287573195,\"tabOrder\":2000}}],\"singleVisual\":{\"visualType\":\"scatterChart\",\"projections\":{\"Y\":[{\"queryRef\":\"_Measures.Avg Pollution\"}],\"X\":[{\"queryRef\":\"_Measures.Trips\",\"active\":true}],\"Category\":[{\"queryRef\":\"dm_date.date\",\"active\":true}]},\"prototypeQuery\":{\"Version\":2,\"From\":[{\"Name\":\"_\",\"Entity\":\"_Measures\",\"Type\":0},{\"Name\":\"d\",\"Entity\":\"dm_date\",\"Type\":0}],\"Select\":[{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"_\"}},\"Property\":\"Avg Pollution\"},\"Name\":\"_Measures.Avg Pollution\",\"NativeReferenceName\":\"Avg Pollution\"},{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"_\"}},\"Property\":\"Trips\"},\"Name\":\"_Measures.Trips\",\"NativeReferenceName\":\"Trips\"},{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"date\"},\"Name\":\"dm_date.date\",\"NativeReferenceName\":\"date\"}]},\"drillFilterOtherVisuals\":true,\"objects\":{\"trend\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}},\"displayName\":{\"expr\":{\"Literal\":{\"Value\":\"'Trend line 1'\"}}}}}]},\"vcObjects\":{\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Correlation: Daily Trips vs Pollution'\"}}}}}]}}}",
+          "filters": "[]",
+          "height": 317.29,
+          "width": 1280.00,
+          "x": 0.00,
+          "y": 403.90,
+          "z": 2000.00
+        }
+      ],
+      "width": 1280.00
+    },
+    {
+      "config": "{\"objects\":{\"background\":[{\"properties\":{\"color\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":0,\"Percent\":0}}}}}}}],\"filterCard\":[{\"properties\":{\"border\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}},\"selector\":{\"id\":\"Available\"}}],\"outspacePane\":[{\"properties\":{\"border\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]}}",
+      "displayName": "Overview",
+      "displayOption": 1,
+      "filters": "[]",
+      "height": 720.00,
+      "name": "cfbf9aa070e10f44bb67",
+      "visualContainers": [
+        {
+          "config": "{\"name\":\"300f2b70344b5e2f214b\",\"layouts\":[{\"id\":0,\"position\":{\"x\":19.15419648666233,\"y\":305.63435263500327,\"z\":0,\"width\":333.11646063760577,\"height\":222.35523747560183,\"tabOrder\":4000}}],\"singleVisual\":{\"visualType\":\"cardVisual\",\"projections\":{\"Data\":[{\"queryRef\":\"_Measures.Revenue USD\"}]},\"prototypeQuery\":{\"Version\":2,\"From\":[{\"Name\":\"_\",\"Entity\":\"_Measures\",\"Type\":0}],\"Select\":[{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"_\"}},\"Property\":\"Revenue USD\"},\"Name\":\"_Measures.Revenue USD\",\"NativeReferenceName\":\"Revenue\"}],\"OrderBy\":[{\"Direction\":2,\"Expression\":{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"_\"}},\"Property\":\"Revenue USD\"}}}]},\"columnProperties\":{\"_Measures.Revenue USD\":{\"displayName\":\"Revenue\"}},\"drillFilterOtherVisuals\":true,\"hasDefaultSort\":true,\"objects\":{\"value\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}}}},{\"properties\":{\"labelDisplayUnits\":{\"expr\":{\"Literal\":{\"Value\":\"1D\"}}},\"horizontalAlignment\":{\"expr\":{\"Literal\":{\"Value\":\"'center'\"}}}},\"selector\":{\"metadata\":\"_Measures.Revenue USD\"}}],\"layout\":[{\"properties\":{\"contentOrder\":{\"expr\":{\"Literal\":{\"Value\":\"'callout_image_referenceLabel'\"}}},\"alignment\":{\"expr\":{\"Literal\":{\"Value\":\"'middle'\"}}}}}],\"referenceLabelLayout\":[{\"properties\":{\"position\":{\"expr\":{\"Literal\":{\"Value\":\"'below'\"}}}},\"selector\":{\"id\":\"default\"}}],\"label\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}},\"heading\":{\"expr\":{\"Literal\":{\"Value\":\"'Heading3'\"}}},\"position\":{\"expr\":{\"Literal\":{\"Value\":\"'belowValue'\"}}}},\"selector\":{\"id\":\"default\"}},{\"properties\":{\"heading\":{\"expr\":{\"Literal\":{\"Value\":\"'Heading4'\"}}}},\"selector\":{\"metadata\":\"_Measures.Revenue USD\"}}],\"outline\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}},\"selector\":{\"id\":\"default\"}}]}}}",
+          "filters": "[]",
+          "height": 222.36,
+          "width": 333.12,
+          "x": 19.15,
+          "y": 305.63,
+          "z": 0.00
+        },
+        {
+          "config": "{\"name\":\"77a74dedfa87f701299a\",\"layouts\":[{\"id\":0,\"position\":{\"x\":370.5920624593364,\"y\":342.27716330513994,\"z\":4000,\"width\":261.49642160052053,\"height\":149.9024072869226,\"tabOrder\":6000}}],\"singleVisual\":{\"visualType\":\"cardVisual\",\"projections\":{\"Data\":[{\"queryRef\":\"_Measures.Zones with Sensors\"}]},\"prototypeQuery\":{\"Version\":2,\"From\":[{\"Name\":\"_\",\"Entity\":\"_Measures\",\"Type\":0}],\"Select\":[{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"_\"}},\"Property\":\"Zones with Sensors\"},\"Name\":\"_Measures.Zones with Sensors\",\"NativeReferenceName\":\"Zones with Sensors\"}],\"OrderBy\":[{\"Direction\":2,\"Expression\":{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"_\"}},\"Property\":\"Zones with Sensors\"}}}]},\"drillFilterOtherVisuals\":true,\"hasDefaultSort\":true,\"objects\":{\"value\":[{\"properties\":{\"horizontalAlignment\":{\"expr\":{\"Literal\":{\"Value\":\"'center'\"}}}},\"selector\":{\"metadata\":\"_Measures.Zones with Sensors\"}}],\"outline\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}},\"selector\":{\"id\":\"default\"}}]}}}",
+          "filters": "[]",
+          "height": 149.90,
+          "width": 261.50,
+          "x": 370.59,
+          "y": 342.28,
+          "z": 4000.00
+        },
+        {
+          "config": "{\"name\":\"a8c67246a3d7574d3ab7\",\"layouts\":[{\"id\":0,\"position\":{\"x\":1237.555266579974,\"y\":1.6644993498049414,\"z\":6001,\"width\":42.444733420026004,\"height\":39.94798439531859,\"tabOrder\":6001}}],\"singleVisual\":{\"visualType\":\"actionButton\",\"drillFilterOtherVisuals\":true,\"objects\":{\"icon\":[{\"properties\":{\"shapeType\":{\"expr\":{\"Literal\":{\"Value\":\"'rightArrow'\"}}}},\"selector\":{\"id\":\"default\"}}]},\"vcObjects\":{\"visualLink\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}},\"type\":{\"expr\":{\"Literal\":{\"Value\":\"'PageNavigation'\"}}},\"navigationSection\":{\"expr\":{\"Literal\":{\"Value\":\"'61fe4147b0d756257663'\"}}}}}]}},\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 39.95,
+          "width": 42.44,
+          "x": 1237.56,
+          "y": 1.66,
+          "z": 6001.00
+        },
+        {
+          "config": "{\"name\":\"aa4c2ca6d0284ff58e13\",\"layouts\":[{\"id\":0,\"position\":{\"x\":384.7495120364346,\"y\":139.0761223162004,\"z\":3000,\"width\":233.18152244632404,\"height\":111.59401431359792,\"tabOrder\":1000}}],\"singleVisual\":{\"visualType\":\"textbox\",\"drillFilterOtherVisuals\":true,\"objects\":{\"general\":[{\"properties\":{\"paragraphs\":[{\"textRuns\":[{\"value\":\"Study period:\",\"textStyle\":{\"fontWeight\":\"bold\",\"fontSize\":\"24pt\"}}],\"horizontalTextAlignment\":\"center\"},{\"textRuns\":[{\"value\":\"2023-2024\",\"textStyle\":{\"fontSize\":\"24pt\"}}],\"horizontalTextAlignment\":\"center\"}]}}]}}}",
+          "filters": "[]",
+          "height": 111.59,
+          "width": 233.18,
+          "x": 384.75,
+          "y": 139.08,
+          "z": 3000.00
+        },
+        {
+          "config": "{\"name\":\"b8975c88d7c31919272d\",\"layouts\":[{\"id\":0,\"position\":{\"x\":678.7247885491217,\"y\":115.757970071568,\"z\":5000,\"width\":504.67143786597273,\"height\":604.6063760572545,\"tabOrder\":2000}}],\"singleVisual\":{\"visualType\":\"pivotTable\",\"projections\":{\"Rows\":[{\"queryRef\":\"dm_zone.zone_name\",\"active\":true}],\"Columns\":[{\"queryRef\":\"dm_air_measurement.p_display_name\",\"active\":true}],\"Values\":[{\"queryRef\":\"CountNonNull(fct_air_quality.zone_id)\"}]},\"prototypeQuery\":{\"Version\":2,\"From\":[{\"Name\":\"d\",\"Entity\":\"dm_zone\",\"Type\":0},{\"Name\":\"d1\",\"Entity\":\"dm_air_measurement\",\"Type\":0},{\"Name\":\"f\",\"Entity\":\"fct_air_quality\",\"Type\":0}],\"Select\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"zone_name\"},\"Name\":\"dm_zone.zone_name\",\"NativeReferenceName\":\"zone_name\"},{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d1\"}},\"Property\":\"p_display_name\"},\"Name\":\"dm_air_measurement.p_display_name\",\"NativeReferenceName\":\"p_display_name\"},{\"Aggregation\":{\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"f\"}},\"Property\":\"zone_id\"}},\"Function\":5},\"Name\":\"CountNonNull(fct_air_quality.zone_id)\",\"NativeReferenceName\":\"Count of zone_id\"}],\"OrderBy\":[{\"Direction\":1,\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"zone_name\"}}}]},\"drillFilterOtherVisuals\":true,\"objects\":{\"blankRows\":[{\"properties\":{\"showBlankRows\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}],\"grid\":[{\"properties\":{\"outlineStyle\":{\"expr\":{\"Literal\":{\"Value\":\"0D\"}}}}}],\"columnHeaders\":[{\"properties\":{\"columnAdjustment\":{\"expr\":{\"Literal\":{\"Value\":\"'growToFit'\"}}},\"alignment\":{\"expr\":{\"Literal\":{\"Value\":\"'Center'\"}}},\"titleAlignment\":{\"expr\":{\"Literal\":{\"Value\":\"'Center'\"}}},\"wordWrap\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}},\"fontSize\":{\"expr\":{\"Literal\":{\"Value\":\"11D\"}}}}}],\"values\":[{\"properties\":{}}]},\"vcObjects\":{\"title\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}},\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Sensor Coverage by Zone and Parameter'\"}}},\"fontSize\":{\"expr\":{\"Literal\":{\"Value\":\"16D\"}}},\"alignment\":{\"expr\":{\"Literal\":{\"Value\":\"'center'\"}}}}}],\"divider\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}},\"style\":{\"expr\":{\"Literal\":{\"Value\":\"'solid'\"}}},\"width\":{\"expr\":{\"Literal\":{\"Value\":\"3D\"}}}}}],\"visualHeader\":[{\"properties\":{\"transparency\":{\"expr\":{\"Literal\":{\"Value\":\"0D\"}}},\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}}}}],\"stylePreset\":[{\"properties\":{\"name\":{\"expr\":{\"Literal\":{\"Value\":\"'Minimal'\"}}}}}]}}}",
+          "filters": "[]",
+          "height": 604.61,
+          "width": 504.67,
+          "x": 678.72,
+          "y": 115.76,
+          "z": 5000.00
+        },
+        {
+          "config": "{\"name\":\"d166340e6647383e41c1\",\"layouts\":[{\"id\":0,\"position\":{\"x\":0,\"y\":0,\"z\":2000,\"width\":1280,\"height\":83.27911515940144,\"tabOrder\":0}}],\"singleVisual\":{\"visualType\":\"textbox\",\"drillFilterOtherVisuals\":true,\"objects\":{\"general\":[{\"properties\":{\"paragraphs\":[{\"textRuns\":[{\"value\":\"NYC Taxi Mobility & Air Quality\",\"textStyle\":{\"fontWeight\":\"bold\",\"fontSize\":\"24pt\"}}],\"horizontalTextAlignment\":\"center\"},{\"textRuns\":[{\"value\":\"Daily and hourly analysis across TLC zones, OpenAQ sensors, FX, and US GDP\",\"textStyle\":{\"fontSize\":\"14pt\"}}],\"horizontalTextAlignment\":\"center\"}]}}]}}}",
+          "filters": "[]",
+          "height": 83.28,
+          "width": 1280.00,
+          "x": 0.00,
+          "y": 0.00,
+          "z": 2000.00
+        },
+        {
+          "config": "{\"name\":\"dd7a26ac8403db9a9d20\",\"layouts\":[{\"id\":0,\"position\":{\"x\":0,\"y\":83.27911515940144,\"z\":1000,\"width\":370.5920624593364,\"height\":222.35523747560183,\"tabOrder\":5000}}],\"singleVisual\":{\"visualType\":\"cardVisual\",\"projections\":{\"Data\":[{\"queryRef\":\"_Measures.Trips\"}]},\"prototypeQuery\":{\"Version\":2,\"From\":[{\"Name\":\"_\",\"Entity\":\"_Measures\",\"Type\":0}],\"Select\":[{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"_\"}},\"Property\":\"Trips\"},\"Name\":\"_Measures.Trips\",\"NativeReferenceName\":\"Trips\"}],\"OrderBy\":[{\"Direction\":2,\"Expression\":{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"_\"}},\"Property\":\"Trips\"}}}]},\"drillFilterOtherVisuals\":true,\"hasDefaultSort\":true,\"objects\":{\"value\":[{\"properties\":{\"labelDisplayUnits\":{\"expr\":{\"Literal\":{\"Value\":\"1D\"}}},\"fontSize\":{\"expr\":{\"Literal\":{\"Value\":\"27D\"}}},\"bold\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}},\"horizontalAlignment\":{\"expr\":{\"Literal\":{\"Value\":\"'center'\"}}}},\"selector\":{\"metadata\":\"_Measures.Trips\"}}],\"outline\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}},\"selector\":{\"id\":\"default\"}}]}}}",
+          "filters": "[]",
+          "height": 222.36,
+          "width": 370.59,
+          "x": 0.00,
+          "y": 83.28,
+          "z": 1000.00
+        },
+        {
+          "config": "{\"name\":\"e1c489462d89f7308542\",\"layouts\":[{\"id\":0,\"position\":{\"x\":19.15419648666233,\"y\":572.9603122966819,\"z\":6000,\"width\":598.7768379960963,\"height\":122.42029928432011,\"tabOrder\":3000}}],\"singleVisual\":{\"visualType\":\"textbox\",\"drillFilterOtherVisuals\":true,\"objects\":{\"general\":[{\"properties\":{\"paragraphs\":[{\"textRuns\":[{\"value\":\"Data coverage note\",\"textStyle\":{\"fontWeight\":\"bold\",\"fontSize\":\"12pt\",\"color\":\"#666666\"}},{\"value\":\": OpenAQ aggregates reference-grade public monitors. After spatial join to TLC zones, sensor coverage concentrates in a small number of zones, and NO2 has no in-zone sensors during the study window. PM2.5 has the strongest coverage and is the primary pollutant analyzed in subsequent pages.\",\"textStyle\":{\"fontSize\":\"12pt\",\"color\":\"#666666\"}}],\"horizontalTextAlignment\":\"center\"}]}}]}}}",
+          "filters": "[]",
+          "height": 122.42,
+          "width": 598.78,
+          "x": 19.15,
+          "y": 572.96,
+          "z": 6000.00
+        }
+      ],
+      "width": 1280.00
+    },
+    {
+      "config": "{}",
+      "displayName": "Diurnal Patterns",
+      "displayOption": 1,
+      "filters": "[]",
+      "height": 720.00,
+      "name": "f9bb677937df826675c1",
+      "ordinal": 2,
+      "visualContainers": [
+        {
+          "config": "{\"name\":\"25bc810fafa4b43a20aa\",\"layouts\":[{\"id\":0,\"position\":{\"x\":716.2003903708523,\"y\":79.11515940143137,\"z\":4000,\"width\":563.7996096291478,\"height\":641.249186727391,\"tabOrder\":4000}}],\"singleVisual\":{\"visualType\":\"lineChart\",\"projections\":{\"Category\":[{\"queryRef\":\"fct_taxi_hourly.hour\",\"active\":true}],\"Y\":[{\"queryRef\":\"_Measures.Trips Hourly\"}],\"Y2\":[{\"queryRef\":\"_Measures.Avg Pollution Hourly\"}]},\"prototypeQuery\":{\"Version\":2,\"From\":[{\"Name\":\"f\",\"Entity\":\"fct_taxi_hourly\",\"Type\":0},{\"Name\":\"_\",\"Entity\":\"_Measures\",\"Type\":0}],\"Select\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"f\"}},\"Property\":\"hour\"},\"Name\":\"fct_taxi_hourly.hour\",\"NativeReferenceName\":\"hour\"},{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"_\"}},\"Property\":\"Trips Hourly\"},\"Name\":\"_Measures.Trips Hourly\",\"NativeReferenceName\":\"Trips Hourly\"},{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"_\"}},\"Property\":\"Avg Pollution Hourly\"},\"Name\":\"_Measures.Avg Pollution Hourly\",\"NativeReferenceName\":\"Avg Pollution Hourly\"}],\"OrderBy\":[{\"Direction\":2,\"Expression\":{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"_\"}},\"Property\":\"Trips Hourly\"}}}]},\"drillFilterOtherVisuals\":true,\"hasDefaultSort\":true,\"vcObjects\":{\"title\":[{\"properties\":{\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Hour-of-Day Profile: Trips vs Pollution'\"}}}}}]}}}",
+          "filters": "[]",
+          "height": 641.25,
+          "width": 563.80,
+          "x": 716.20,
+          "y": 79.12,
+          "z": 4000.00
+        },
+        {
+          "config": "{\"name\":\"2d0f7b142e470f1d71c7\",\"layouts\":[{\"id\":0,\"position\":{\"x\":1237.5276512687053,\"y\":0,\"z\":4002,\"width\":42.47234873129473,\"height\":39.97397527651269,\"tabOrder\":4002}}],\"singleVisual\":{\"visualType\":\"actionButton\",\"drillFilterOtherVisuals\":true,\"objects\":{\"icon\":[{\"properties\":{\"shapeType\":{\"expr\":{\"Literal\":{\"Value\":\"'rightArrow'\"}}}},\"selector\":{\"id\":\"default\"}}]},\"vcObjects\":{\"visualLink\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}},\"type\":{\"expr\":{\"Literal\":{\"Value\":\"'PageNavigation'\"}}},\"navigationSection\":{\"expr\":{\"Literal\":{\"Value\":\"'5025d338b972f562f3dd'\"}}}}}]}},\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 39.97,
+          "width": 42.47,
+          "x": 1237.53,
+          "y": 0.00,
+          "z": 4002.00
+        },
+        {
+          "config": "{\"name\":\"4e68d81e5dcd1ea57ad1\",\"layouts\":[{\"id\":0,\"position\":{\"x\":358.1001951854262,\"y\":0,\"z\":1000,\"width\":358.1001951854262,\"height\":79.11515940143137,\"tabOrder\":1000}}],\"singleVisual\":{\"visualType\":\"slicer\",\"projections\":{\"Values\":[{\"queryRef\":\"dm_air_measurement.p_display_name\",\"active\":true}]},\"prototypeQuery\":{\"Version\":2,\"From\":[{\"Name\":\"d\",\"Entity\":\"dm_air_measurement\",\"Type\":0}],\"Select\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"p_display_name\"},\"Name\":\"dm_air_measurement.p_display_name\",\"NativeReferenceName\":\"p_display_name\"}]},\"drillFilterOtherVisuals\":true,\"objects\":{\"data\":[{\"properties\":{\"mode\":{\"expr\":{\"Literal\":{\"Value\":\"'Dropdown'\"}}}}}],\"general\":[{\"properties\":{\"filter\":{\"filter\":{\"Version\":2,\"From\":[{\"Name\":\"d\",\"Entity\":\"dm_air_measurement\",\"Type\":0}],\"Where\":[{\"Condition\":{\"In\":{\"Expressions\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"p_display_name\"}}],\"Values\":[[{\"Literal\":{\"Value\":\"'PM2.5'\"}}]]}}}]}}}}]}}}",
+          "filters": "[]",
+          "height": 79.12,
+          "width": 358.10,
+          "x": 358.10,
+          "y": 0.00,
+          "z": 1000.00
+        },
+        {
+          "config": "{\"name\":\"9b85ccb5a4c17438d0d5\",\"layouts\":[{\"id\":0,\"position\":{\"x\":1197.5536759921927,\"y\":0,\"z\":4001,\"width\":39.97397527651269,\"height\":39.97397527651269,\"tabOrder\":4001}}],\"singleVisual\":{\"visualType\":\"actionButton\",\"drillFilterOtherVisuals\":true,\"objects\":{\"icon\":[{\"properties\":{\"shapeType\":{\"expr\":{\"Literal\":{\"Value\":\"'leftArrow'\"}}}},\"selector\":{\"id\":\"default\"}}]},\"vcObjects\":{\"visualLink\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}},\"type\":{\"expr\":{\"Literal\":{\"Value\":\"'PageNavigation'\"}}},\"navigationSection\":{\"expr\":{\"Literal\":{\"Value\":\"'61fe4147b0d756257663'\"}}}}}]}},\"howCreated\":\"InsertVisualButton\"}",
+          "filters": "[]",
+          "height": 39.97,
+          "width": 39.97,
+          "x": 1197.55,
+          "y": 0.00,
+          "z": 4001.00
+        },
+        {
+          "config": "{\"name\":\"d366c3bee0ef6b025f9f\",\"layouts\":[{\"id\":0,\"position\":{\"x\":0,\"y\":0,\"z\":0,\"width\":348.106701366298,\"height\":79.11515940143137,\"tabOrder\":0}}],\"singleVisual\":{\"visualType\":\"slicer\",\"projections\":{\"Values\":[{\"queryRef\":\"dm_date.is_weekend\",\"active\":true}]},\"prototypeQuery\":{\"Version\":2,\"From\":[{\"Name\":\"d\",\"Entity\":\"dm_date\",\"Type\":0}],\"Select\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"is_weekend\"},\"Name\":\"dm_date.is_weekend\",\"NativeReferenceName\":\"is_weekend\"}]},\"drillFilterOtherVisuals\":true,\"objects\":{\"data\":[{\"properties\":{\"mode\":{\"expr\":{\"Literal\":{\"Value\":\"'Dropdown'\"}}}}}],\"general\":[{\"properties\":{\"filter\":{\"filter\":{\"Version\":2,\"From\":[{\"Name\":\"d\",\"Entity\":\"dm_date\",\"Type\":0}],\"Where\":[{\"Condition\":{\"In\":{\"Expressions\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"is_weekend\"}}],\"Values\":[[{\"Literal\":{\"Value\":\"true\"}}]]}}}]}}}}]}}}",
+          "filters": "[]",
+          "height": 79.12,
+          "width": 348.11,
+          "x": 0.00,
+          "y": 0.00,
+          "z": 0.00
+        },
+        {
+          "config": "{\"name\":\"e09d412c3db2d1f03b41\",\"layouts\":[{\"id\":0,\"position\":{\"x\":358.1001951854262,\"y\":79.11515940143137,\"z\":3000,\"width\":358.1001951854262,\"height\":641.249186727391,\"tabOrder\":3000}}],\"singleVisual\":{\"visualType\":\"pivotTable\",\"projections\":{\"Rows\":[{\"queryRef\":\"fct_air_quality_hourly.hour\",\"active\":true}],\"Columns\":[{\"queryRef\":\"dm_zone.zone_name\",\"active\":true}],\"Values\":[{\"queryRef\":\"_Measures.Avg Pollution Hourly\"}]},\"prototypeQuery\":{\"Version\":2,\"From\":[{\"Name\":\"f\",\"Entity\":\"fct_air_quality_hourly\",\"Type\":0},{\"Name\":\"d\",\"Entity\":\"dm_zone\",\"Type\":0},{\"Name\":\"_\",\"Entity\":\"_Measures\",\"Type\":0}],\"Select\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"f\"}},\"Property\":\"hour\"},\"Name\":\"fct_air_quality_hourly.hour\",\"NativeReferenceName\":\"hour\"},{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"zone_name\"},\"Name\":\"dm_zone.zone_name\",\"NativeReferenceName\":\"zone_name\"},{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"_\"}},\"Property\":\"Avg Pollution Hourly\"},\"Name\":\"_Measures.Avg Pollution Hourly\",\"NativeReferenceName\":\"Avg Pollution Hourly\"}]},\"drillFilterOtherVisuals\":true,\"objects\":{\"values\":[{\"properties\":{\"backColor\":{\"solid\":{\"color\":{\"expr\":{\"FillRule\":{\"Input\":{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Entity\":\"_Measures\"}},\"Property\":\"Avg Pollution Hourly\"}},\"FillRule\":{\"linearGradient2\":{\"min\":{\"color\":{\"Literal\":{\"Value\":\"'#C5F2CA'\"}}},\"max\":{\"color\":{\"Literal\":{\"Value\":\"'#D64550'\"}}},\"nullColoringStrategy\":{\"strategy\":{\"Literal\":{\"Value\":\"'asZero'\"}}}}}}}}}}},\"selector\":{\"data\":[{\"dataViewWildcard\":{\"matchingOption\":1}}],\"metadata\":\"_Measures.Avg Pollution Hourly\"}}]},\"vcObjects\":{\"stylePreset\":[{\"properties\":{\"name\":{\"expr\":{\"Literal\":{\"Value\":\"'Minimal'\"}}}}}],\"title\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}},\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Pollution heatmap'\"}}}}}]}}}",
+          "filters": "[]",
+          "height": 641.25,
+          "width": 358.10,
+          "x": 358.10,
+          "y": 79.12,
+          "z": 3000.00
+        },
+        {
+          "config": "{\"name\":\"e28d854e6d545a2d782b\",\"layouts\":[{\"id\":0,\"position\":{\"x\":0,\"y\":79.11515940143137,\"z\":2000,\"width\":358.1001951854262,\"height\":641.249186727391,\"tabOrder\":2000}}],\"singleVisual\":{\"visualType\":\"pivotTable\",\"projections\":{\"Rows\":[{\"queryRef\":\"fct_taxi_hourly.hour\",\"active\":true}],\"Columns\":[{\"queryRef\":\"dm_zone.zone_name\",\"active\":true}],\"Values\":[{\"queryRef\":\"_Measures.Trips Hourly\"}]},\"prototypeQuery\":{\"Version\":2,\"From\":[{\"Name\":\"f\",\"Entity\":\"fct_taxi_hourly\",\"Type\":0},{\"Name\":\"d\",\"Entity\":\"dm_zone\",\"Type\":0},{\"Name\":\"_\",\"Entity\":\"_Measures\",\"Type\":0}],\"Select\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"f\"}},\"Property\":\"hour\"},\"Name\":\"fct_taxi_hourly.hour\",\"NativeReferenceName\":\"hour\"},{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"d\"}},\"Property\":\"zone_name\"},\"Name\":\"dm_zone.zone_name\",\"NativeReferenceName\":\"zone_name\"},{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Source\":\"_\"}},\"Property\":\"Trips Hourly\"},\"Name\":\"_Measures.Trips Hourly\",\"NativeReferenceName\":\"Trips Hourly\"}]},\"drillFilterOtherVisuals\":true,\"objects\":{\"columnHeaders\":[{\"properties\":{\"columnAdjustment\":{\"expr\":{\"Literal\":{\"Value\":\"'growToFit'\"}}},\"defaultColumnWidth\":{\"expr\":{\"Literal\":{\"Value\":\"90D\"}}},\"wordWrap\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}},\"fontSize\":{\"expr\":{\"Literal\":{\"Value\":\"9D\"}}}}}],\"blankRows\":[{\"properties\":{\"showBlankRows\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}],\"general\":[{\"properties\":{\"layout\":{\"expr\":{\"Literal\":{\"Value\":\"'Compact'\"}}}}}],\"grid\":[{\"properties\":{\"gridHorizontal\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}}}}],\"values\":[{\"properties\":{\"valuesOnRow\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}},{\"properties\":{\"backColor\":{\"solid\":{\"color\":{\"expr\":{\"FillRule\":{\"Input\":{\"Measure\":{\"Expression\":{\"SourceRef\":{\"Entity\":\"_Measures\"}},\"Property\":\"Trips Hourly\"}},\"FillRule\":{\"linearGradient2\":{\"min\":{\"color\":{\"Literal\":{\"Value\":\"'minColor'\"}}},\"max\":{\"color\":{\"Literal\":{\"Value\":\"'maxColor'\"}}},\"nullColoringStrategy\":{\"strategy\":{\"Literal\":{\"Value\":\"'asZero'\"}}}}}}}}}}},\"selector\":{\"data\":[{\"dataViewWildcard\":{\"matchingOption\":1}}],\"metadata\":\"_Measures.Trips Hourly\"}}]},\"vcObjects\":{\"stylePreset\":[{\"properties\":{\"name\":{\"expr\":{\"Literal\":{\"Value\":\"'Minimal'\"}}}}}],\"background\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}},\"color\":{\"solid\":{\"color\":{\"expr\":{\"ThemeDataColor\":{\"ColorId\":0,\"Percent\":0}}}}}}}],\"title\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}},\"text\":{\"expr\":{\"Literal\":{\"Value\":\"'Trips heatmap'\"}}}}}]}}}",
+          "filters": "[]",
+          "height": 641.25,
+          "width": 358.10,
+          "x": 0.00,
+          "y": 79.12,
+          "z": 2000.00
+        }
+      ],
+      "width": 1280.00
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+table fct_gdp_yearly
+	lineageTag: b7f4a7de-c2d9-4c1e-9526-61e96efceccd
+	sourceLineageTag: [dbo].[fct_gdp_yearly]
+
+	column year
+		dataType: int64
+		formatString: 0
+		lineageTag: 4b1980ad-c503-45c4-aa74-b90943713270
+		sourceLineageTag: year
+		summarizeBy: none
+		sourceColumn: year
+
+		annotation SummarizationSetBy = Automatic
+
+	column gdp_usd
+		dataType: double
+		lineageTag: bd951dad-b3f4-4768-a2b0-d1828b43d4da
+		sourceLineageTag: gdp_usd
+		summarizeBy: sum
+		sourceColumn: gdp_usd
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column country_code
+		dataType: string
+		lineageTag: a9c9a3b7-9c93-467f-805f-662c2054ca74
+		sourceLineageTag: country_code
+		summarizeBy: none
+		sourceColumn: country_code
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fct_gdp_yearly = entity
+		mode: directLake
+		source
+			entityName: fct_gdp_yearly
+			schemaName: dbo
+			expressionSource: 'DirectLake - wh_gold'
+
