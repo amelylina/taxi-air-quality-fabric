@@ -1,0 +1,427 @@
+{
+  "properties": {
+    "activities": [
+      {
+        "type": "SqlServerStoredProcedure",
+        "typeProperties": {
+          "storedProcedureName": "[meta].[log_pipeline_start]",
+          "storedProcedureParameters": {
+            "layer": {
+              "value": {
+                "value": "@variables('layer')",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "pipeline_name": {
+              "value": {
+                "value": "@pipeline().PipelineName",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "String"
+            }
+          }
+        },
+        "linkedService": {
+          "name": "wh_meta",
+          "properties": {
+            "type": "DataWarehouse",
+            "typeProperties": {
+              "artifactId": "e4ef323f-de18-8ccd-43b7-b933c540ca12",
+              "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
+              "workspaceId": "00000000-0000-0000-0000-000000000000"
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "log_pipeline_start",
+        "dependsOn": []
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "6da125ba-5ec8-964c-4911-17c91f5e9db4",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "watermark_ts": {
+              "value": {
+                "value": "@activity('get_watermark').output.firstRow.last_processed_ts",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "load_silver_openaq_sensor_hourly",
+        "dependsOn": [
+          {
+            "activity": "get_watermark",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "Lookup",
+        "typeProperties": {
+          "source": {
+            "type": "DataWarehouseSource",
+            "sqlReaderStoredProcedureName": "[meta].[get_watermark]",
+            "storedProcedureParameters": {
+              "target_table": {
+                "type": "String",
+                "value": "lh_silver.dbo.openaq_measurements_hourly"
+              }
+            },
+            "partitionOption": "None",
+            "queryTimeout": "02:00:00"
+          },
+          "datasetSettings": {
+            "type": "DataWarehouseTable",
+            "schema": [],
+            "linkedService": {
+              "name": "wh_meta",
+              "properties": {
+                "type": "DataWarehouse",
+                "typeProperties": {
+                  "artifactId": "e4ef323f-de18-8ccd-43b7-b933c540ca12",
+                  "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
+                  "workspaceId": "00000000-0000-0000-0000-000000000000"
+                },
+                "annotations": []
+              }
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "get_watermark",
+        "dependsOn": [
+          {
+            "activity": "log_pipeline_start",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "SqlServerStoredProcedure",
+        "typeProperties": {
+          "storedProcedureName": "[meta].[log_watermark]",
+          "storedProcedureParameters": {
+            "rows_merged": {
+              "value": {
+                "value": "@{json(activity('load_silver_openaq_sensor_hourly').output.result.exitValue).row_count}",
+                "type": "Expression"
+              },
+              "type": "Int64"
+            },
+            "run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "source_table": {
+              "value": {
+                "value": "@{json(activity('load_silver_openaq_sensor_hourly').output.result.exitValue).source_table}",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "target_table": {
+              "value": {
+                "value": "@{json(activity('load_silver_openaq_sensor_hourly').output.result.exitValue).target_table}",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "ts": {
+              "value": {
+                "value": "@{json(activity('load_silver_openaq_sensor_hourly').output.result.exitValue).new_ts}",
+                "type": "Expression"
+              },
+              "type": "DateTime"
+            }
+          }
+        },
+        "linkedService": {
+          "name": "wh_meta",
+          "properties": {
+            "type": "DataWarehouse",
+            "typeProperties": {
+              "artifactId": "e4ef323f-de18-8ccd-43b7-b933c540ca12",
+              "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
+              "workspaceId": "00000000-0000-0000-0000-000000000000"
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "log_watermark",
+        "dependsOn": [
+          {
+            "activity": "load_silver_openaq_sensor_hourly",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "SqlServerStoredProcedure",
+        "typeProperties": {
+          "storedProcedureName": "[meta].[log_pipeline_update]",
+          "storedProcedureParameters": {
+            "message": {
+              "value": {
+                "value": "@first(activity('filter_empty').output.Value)",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "status": {
+              "value": "failed",
+              "type": "String"
+            }
+          }
+        },
+        "linkedService": {
+          "name": "wh_meta",
+          "properties": {
+            "type": "DataWarehouse",
+            "typeProperties": {
+              "artifactId": "e4ef323f-de18-8ccd-43b7-b933c540ca12",
+              "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
+              "workspaceId": "00000000-0000-0000-0000-000000000000"
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "log_pipeline_failed",
+        "dependsOn": [
+          {
+            "activity": "filter_empty",
+            "dependencyConditions": [
+              "Completed"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "SqlServerStoredProcedure",
+        "typeProperties": {
+          "storedProcedureName": "[meta].[log_pipeline_update]",
+          "storedProcedureParameters": {
+            "message": {
+              "value": {
+                "value": "@{concat('Loaded ', json(activity('load_silver_openaq_sensor_hourly').output.result.exitValue).row_count, ' rows into silver')}",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "status": {
+              "value": {
+                "value": "succeeded",
+                "type": "Expression"
+              },
+              "type": "String"
+            }
+          }
+        },
+        "linkedService": {
+          "name": "wh_meta",
+          "properties": {
+            "type": "DataWarehouse",
+            "typeProperties": {
+              "artifactId": "e4ef323f-de18-8ccd-43b7-b933c540ca12",
+              "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
+              "workspaceId": "00000000-0000-0000-0000-000000000000"
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "log_pipeline_succeeded",
+        "dependsOn": [
+          {
+            "activity": "log_watermark",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "AppendVariable",
+        "typeProperties": {
+          "variableName": "error_arr",
+          "value": {
+            "value": "@coalesce(activity('get_watermark')?.error?.message, '')",
+            "type": "Expression"
+          }
+        },
+        "name": "append_error",
+        "dependsOn": [
+          {
+            "activity": "get_watermark",
+            "dependencyConditions": [
+              "Completed",
+              "Skipped"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "AppendVariable",
+        "typeProperties": {
+          "variableName": "error_arr",
+          "value": {
+            "value": "@coalesce(activity('load_silver_openaq_sensor_hourly')?.error?.message, '')",
+            "type": "Expression"
+          }
+        },
+        "name": "append_error_copy1",
+        "dependsOn": [
+          {
+            "activity": "load_silver_openaq_sensor_hourly",
+            "dependencyConditions": [
+              "Completed",
+              "Skipped"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "Filter",
+        "typeProperties": {
+          "items": {
+            "value": "@variables('error_arr')",
+            "type": "Expression"
+          },
+          "condition": {
+            "value": "@not(empty(item()))",
+            "type": "Expression"
+          }
+        },
+        "name": "filter_empty",
+        "dependsOn": [
+          {
+            "activity": "append_error",
+            "dependencyConditions": [
+              "Completed"
+            ]
+          },
+          {
+            "activity": "append_error_copy1",
+            "dependencyConditions": [
+              "Completed"
+            ]
+          },
+          {
+            "activity": "append_error_copy2",
+            "dependencyConditions": [
+              "Completed"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "AppendVariable",
+        "typeProperties": {
+          "variableName": "error_arr",
+          "value": {
+            "value": "@coalesce(activity('log_watermark')?.error?.message, '')",
+            "type": "Expression"
+          }
+        },
+        "name": "append_error_copy2",
+        "dependsOn": [
+          {
+            "activity": "log_watermark",
+            "dependencyConditions": [
+              "Skipped",
+              "Failed"
+            ]
+          }
+        ]
+      }
+    ],
+    "variables": {
+      "layer": {
+        "type": "String",
+        "defaultValue": "silver"
+      },
+      "ts": {
+        "type": "String"
+      },
+      "error_arr": {
+        "type": "Array"
+      }
+    },
+    "concurrency": 1
+  }
+}

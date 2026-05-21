@@ -25,7 +25,7 @@
 
 # PARAMETERS CELL ********************
 
-source_name = "openaq_nyc_daily"
+source_name = "openaq_hourly"
 date_from = "2023-01"
 date_to = "2024-12" #inclusive of this month
 url_template = ""

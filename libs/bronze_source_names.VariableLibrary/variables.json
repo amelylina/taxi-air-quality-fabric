@@ -18,6 +18,12 @@
       "note": "",
       "type": "String",
       "value": "openaq_s3"
+    },
+    {
+      "name": "openaq_hourly",
+      "note": "",
+      "type": "String",
+      "value": "openaq_hourly"
     }
   ]
 }

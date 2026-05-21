@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "DataPipeline",
+    "displayName": "pl_bronze_openaq_sensor_hourly"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "abd2f184-27d6-b1e4-43a4-1b4e746f6752"
+  }
+}
