@@ -3,7 +3,7 @@
   "version": "4.0",
   "datasetReference": {
     "byPath": {
-      "path": "../taxi_air_economy.SemanticModel"
+      "path": "../BI/taxi_air_economy.SemanticModel"
     }
   }
 }
