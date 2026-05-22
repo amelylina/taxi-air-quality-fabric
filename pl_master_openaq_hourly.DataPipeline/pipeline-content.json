@@ -1,0 +1,263 @@
+{
+  "properties": {
+    "activities": [
+      {
+        "type": "InvokePipeline",
+        "typeProperties": {
+          "parameters": {
+            "claim_limit": {
+              "value": "@pipeline().parameters.air_claim_limit",
+              "type": "Expression"
+            }
+          },
+          "waitOnCompletion": true,
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "pipelineId": "abd2f184-27d6-b1e4-43a4-1b4e746f6752",
+          "operationType": "InvokeFabricPipeline"
+        },
+        "externalReferences": {
+          "connection": "cc9c13b3-7630-44c9-bea0-2866af3942dc"
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "pl_bronze_openaq_hourly",
+        "dependsOn": [
+          {
+            "activity": "log_pipeline_start",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "InvokePipeline",
+        "typeProperties": {
+          "parameters": {},
+          "waitOnCompletion": true,
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "pipelineId": "68278445-e5eb-bf73-41ab-3ea6429165c4",
+          "operationType": "InvokeFabricPipeline"
+        },
+        "externalReferences": {
+          "connection": "cc9c13b3-7630-44c9-bea0-2866af3942dc"
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "pl_silver_openaq_hourly",
+        "dependsOn": [
+          {
+            "activity": "pl_bronze_openaq_hourly",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "InvokePipeline",
+        "typeProperties": {
+          "parameters": {},
+          "waitOnCompletion": true,
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "pipelineId": "1295fd0a-be63-9856-4ba7-1454685ee659",
+          "operationType": "InvokeFabricPipeline"
+        },
+        "externalReferences": {
+          "connection": "cc9c13b3-7630-44c9-bea0-2866af3942dc"
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "pl_gold_openaq_hourly",
+        "dependsOn": [
+          {
+            "activity": "pl_silver_openaq_hourly",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "SqlServerStoredProcedure",
+        "typeProperties": {
+          "storedProcedureName": "[meta].[log_pipeline_start]",
+          "storedProcedureParameters": {
+            "layer": {
+              "value": {
+                "value": "@variables('layer')",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "pipeline_name": {
+              "value": {
+                "value": "@pipeline().PipelineName",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "String"
+            }
+          }
+        },
+        "linkedService": {
+          "name": "wh_meta",
+          "properties": {
+            "type": "DataWarehouse",
+            "typeProperties": {
+              "artifactId": "e4ef323f-de18-8ccd-43b7-b933c540ca12",
+              "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
+              "workspaceId": "00000000-0000-0000-0000-000000000000"
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "log_pipeline_start",
+        "dependsOn": []
+      },
+      {
+        "type": "SqlServerStoredProcedure",
+        "typeProperties": {
+          "storedProcedureName": "[meta].[log_pipeline_update]",
+          "storedProcedureParameters": {
+            "message": {
+              "value": null,
+              "type": "String"
+            },
+            "run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "status": {
+              "value": "failed",
+              "type": "String"
+            }
+          }
+        },
+        "linkedService": {
+          "name": "wh_meta",
+          "properties": {
+            "type": "DataWarehouse",
+            "typeProperties": {
+              "artifactId": "e4ef323f-de18-8ccd-43b7-b933c540ca12",
+              "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
+              "workspaceId": "00000000-0000-0000-0000-000000000000"
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "log_pipeline_failed",
+        "dependsOn": [
+          {
+            "activity": "log_pipeline_succeeded",
+            "dependencyConditions": [
+              "Skipped",
+              "Failed"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "SqlServerStoredProcedure",
+        "typeProperties": {
+          "storedProcedureName": "[meta].[log_pipeline_update]",
+          "storedProcedureParameters": {
+            "message": {
+              "value": null,
+              "type": "String"
+            },
+            "run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "status": {
+              "value": "succeeded",
+              "type": "String"
+            }
+          }
+        },
+        "linkedService": {
+          "name": "wh_meta",
+          "properties": {
+            "type": "DataWarehouse",
+            "typeProperties": {
+              "artifactId": "e4ef323f-de18-8ccd-43b7-b933c540ca12",
+              "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
+              "workspaceId": "00000000-0000-0000-0000-000000000000"
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "log_pipeline_succeeded",
+        "dependsOn": [
+          {
+            "activity": "pl_gold_openaq_hourly",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      }
+    ],
+    "parameters": {
+      "air_claim_limit": {
+        "type": "int",
+        "defaultValue": 12
+      }
+    },
+    "variables": {
+      "layer": {
+        "type": "String",
+        "defaultValue": "master"
+      }
+    }
+  }
+}

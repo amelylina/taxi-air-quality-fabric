@@ -40,11 +40,14 @@ table _Measures
 
 	measure 'EUR Rate' =
 			
-			CALCULATE(
-			    SELECTEDVALUE(fct_fx_daily[rate]),
-			    fct_fx_daily[id_cur_from] = 1,
-			    fct_fx_daily[id_cur_to] = 2
-			)
+			VAR USD_id = LOOKUPVALUE(dm_currency[id], dm_currency[currency_name], "USD")
+			VAR EUR_id = LOOKUPVALUE(dm_currency[id], dm_currency[currency_name], "EUR")
+			RETURN
+			    CALCULATE(
+			        AVERAGE(fct_fx_daily[rate]),
+			        fct_fx_daily[id_cur_from] = USD_id,
+			        fct_fx_daily[id_cur_to] = EUR_id
+			    )
 		lineageTag: 7cae72f1-fb2d-4e50-9f2f-155fd1c6c618
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}

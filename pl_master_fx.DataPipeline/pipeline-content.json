@@ -1,0 +1,311 @@
+{
+  "properties": {
+    "activities": [
+      {
+        "type": "SqlServerStoredProcedure",
+        "typeProperties": {
+          "storedProcedureName": "[meta].[log_pipeline_start]",
+          "storedProcedureParameters": {
+            "layer": {
+              "value": {
+                "value": "@variables('layer')",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "pipeline_name": {
+              "value": {
+                "value": "@pipeline().PipelineName",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "String"
+            }
+          }
+        },
+        "linkedService": {
+          "name": "wh_meta",
+          "properties": {
+            "type": "DataWarehouse",
+            "typeProperties": {
+              "artifactId": "e4ef323f-de18-8ccd-43b7-b933c540ca12",
+              "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
+              "workspaceId": "00000000-0000-0000-0000-000000000000"
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "log_pipeline_start",
+        "dependsOn": []
+      },
+      {
+        "type": "SqlServerStoredProcedure",
+        "typeProperties": {
+          "storedProcedureName": "[meta].[log_pipeline_update]",
+          "storedProcedureParameters": {
+            "message": {
+              "value": null,
+              "type": "String"
+            },
+            "run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "status": {
+              "value": "succeeded",
+              "type": "String"
+            }
+          }
+        },
+        "linkedService": {
+          "name": "wh_meta",
+          "properties": {
+            "type": "DataWarehouse",
+            "typeProperties": {
+              "artifactId": "e4ef323f-de18-8ccd-43b7-b933c540ca12",
+              "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
+              "workspaceId": "00000000-0000-0000-0000-000000000000"
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "log_pipeline_succeeded",
+        "dependsOn": [
+          {
+            "activity": "pl_gold_fx_daily",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "SqlServerStoredProcedure",
+        "typeProperties": {
+          "storedProcedureName": "[meta].[log_pipeline_update]",
+          "storedProcedureParameters": {
+            "message": {
+              "value": {
+                "value": "@activity('df_bronze_fx_daily').error.message",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "status": {
+              "value": "failed",
+              "type": "String"
+            }
+          }
+        },
+        "linkedService": {
+          "name": "wh_meta",
+          "properties": {
+            "type": "DataWarehouse",
+            "typeProperties": {
+              "artifactId": "e4ef323f-de18-8ccd-43b7-b933c540ca12",
+              "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
+              "workspaceId": "00000000-0000-0000-0000-000000000000"
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "log_pipeline_failed",
+        "dependsOn": [
+          {
+            "activity": "df_bronze_fx_daily",
+            "dependencyConditions": [
+              "Failed"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "RefreshDataflow",
+        "typeProperties": {
+          "dataflowId": "ff26ceb8-0fb4-8d15-4f6c-389d0baa2efe",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "notifyOption": "NoNotification",
+          "dataflowType": "DataflowFabric"
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "df_bronze_fx_daily",
+        "dependsOn": [
+          {
+            "activity": "log_pipeline_start",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "InvokePipeline",
+        "typeProperties": {
+          "parameters": {},
+          "waitOnCompletion": true,
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "pipelineId": "b4fe8c03-76d7-aa08-49b8-5534c274ab16",
+          "operationType": "InvokeFabricPipeline"
+        },
+        "externalReferences": {
+          "connection": "cc9c13b3-7630-44c9-bea0-2866af3942dc"
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "pl_silver_fx_daily",
+        "dependsOn": [
+          {
+            "activity": "df_bronze_fx_daily",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "InvokePipeline",
+        "typeProperties": {
+          "parameters": {},
+          "waitOnCompletion": true,
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "pipelineId": "d634516a-adef-b31a-4de5-fbf7a489aea3",
+          "operationType": "InvokeFabricPipeline"
+        },
+        "externalReferences": {
+          "connection": "cc9c13b3-7630-44c9-bea0-2866af3942dc"
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "pl_gold_fx_daily",
+        "dependsOn": [
+          {
+            "activity": "pl_silver_fx_daily",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "SqlServerStoredProcedure",
+        "typeProperties": {
+          "storedProcedureName": "[meta].[log_pipeline_update]",
+          "storedProcedureParameters": {
+            "message": {
+              "value": null,
+              "type": "String"
+            },
+            "run_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "String"
+            },
+            "status": {
+              "value": "failed",
+              "type": "String"
+            }
+          }
+        },
+        "linkedService": {
+          "name": "wh_meta",
+          "properties": {
+            "type": "DataWarehouse",
+            "typeProperties": {
+              "artifactId": "e4ef323f-de18-8ccd-43b7-b933c540ca12",
+              "endpoint": "ousxut53kpee7fiotk4npe34qq-b6naulvmvfyepejxcc2s2c3n6y.datawarehouse.fabric.microsoft.com",
+              "workspaceId": "00000000-0000-0000-0000-000000000000"
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "log_pipeline_failed_2",
+        "dependsOn": [
+          {
+            "activity": "log_pipeline_failed",
+            "dependencyConditions": [
+              "Skipped"
+            ]
+          },
+          {
+            "activity": "log_pipeline_succeeded",
+            "dependencyConditions": [
+              "Skipped",
+              "Failed"
+            ]
+          }
+        ]
+      }
+    ],
+    "variables": {
+      "layer": {
+        "type": "String",
+        "defaultValue": "master"
+      },
+      "df_error": {
+        "type": "String"
+      }
+    }
+  }
+}

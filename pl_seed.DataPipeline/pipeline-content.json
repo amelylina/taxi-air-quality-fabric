@@ -111,6 +111,12 @@
             "dependencyConditions": [
               "Succeeded"
             ]
+          },
+          {
+            "activity": "gdp_gold",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
           }
         ]
       },
@@ -459,7 +465,7 @@
         "typeProperties": {
           "variableName": "error_arr",
           "value": {
-            "value": "@createArray(\n    coalesce(activity('seed_taxi_partitions')?.error?.message, ''),\n    coalesce(activity('seed_air_measurement_partitions')?.error?.message, ''),\n    coalesce(activity('fetch_openaq_api_key')?.error?.message, ''),\n    coalesce(activity('df_bronze_openaq_locs')?.error?.message, ''),\n    coalesce(activity('bronze_taxi_zones_shape')?.error?.message, ''),\n    coalesce(activity('silver_openaq_sensor_zones')?.error?.message, ''),\n    coalesce(activity('gold_seed_dimensions')?.error?.message, '')\n)",
+            "value": "@createArray(\n    coalesce(activity('seed_taxi_partitions')?.error?.message, ''),\n    coalesce(activity('seed_air_measurement_partitions')?.error?.message, ''),\n    coalesce(activity('fetch_openaq_api_key')?.error?.message, ''),\n    coalesce(activity('df_bronze_openaq_locs')?.error?.message, ''),\n    coalesce(activity('bronze_taxi_zones_shape')?.error?.message, ''),\n    coalesce(activity('silver_openaq_sensor_zones')?.error?.message, ''),\n    coalesce(activity('gold_seed_dimensions')?.error?.message, ''),\n    coalesce(activity('df_bronze_gdp_us')?.error?.message, ''),\n    coalesce(activity('gdp_silver')?.error?.message, ''),\n    coalesce(activity('gdp_gold')?.error?.message, '')\n)",
             "type": "Expression"
           }
         },
@@ -473,6 +479,89 @@
             "activity": "log_pipeline_succeeded",
             "dependencyConditions": [
               "Skipped"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "RefreshDataflow",
+        "typeProperties": {
+          "dataflowId": "7bd894cb-7da9-a19c-4d86-a77ad1dfebce",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "notifyOption": "NoNotification",
+          "dataflowType": "DataflowFabric"
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "df_bronze_gdp_us",
+        "dependsOn": [
+          {
+            "activity": "log_pipeline_start",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "InvokePipeline",
+        "typeProperties": {
+          "parameters": {},
+          "waitOnCompletion": true,
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "pipelineId": "c935b011-d793-bd9d-4c47-116b6e64df87",
+          "operationType": "InvokeFabricPipeline"
+        },
+        "externalReferences": {
+          "connection": "cc9c13b3-7630-44c9-bea0-2866af3942dc"
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "gdp_silver",
+        "dependsOn": [
+          {
+            "activity": "df_bronze_gdp_us",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "InvokePipeline",
+        "typeProperties": {
+          "parameters": {},
+          "waitOnCompletion": true,
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "pipelineId": "1e1cc1ca-c102-9668-4faf-2b58bf54eeb6",
+          "operationType": "InvokeFabricPipeline"
+        },
+        "externalReferences": {
+          "connection": "cc9c13b3-7630-44c9-bea0-2866af3942dc"
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "gdp_gold",
+        "dependsOn": [
+          {
+            "activity": "gdp_silver",
+            "dependencyConditions": [
+              "Succeeded"
             ]
           }
         ]
