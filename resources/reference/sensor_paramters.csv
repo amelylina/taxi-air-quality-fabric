@@ -1,0 +1,13 @@
+id,p_name,p_units,p_display_name
+1,pm1,µg/m³,PM1
+2,pm25,µg/m³,PM2.5
+3,pm10,µg/m³,PM10
+4,relativehumidity,%,RH
+5,nox,ppm,NOx
+6,temperature,c,Temperature (C)
+7,no2,ppm,NO₂
+8,no,ppm,NO
+9,o3,ppm,O₃
+10,co,ppm,CO
+11,um003,particles/cm³,PM0.3 count
+12,so2,ppm,SO₂
