@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Notebook",
+    "displayName": "nb_taxi_weather_influx"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "491da54a-edd2-b738-4a04-72c413d11fdf"
+  }
+}

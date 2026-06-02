@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Environment",
+    "displayName": "env_influx",
+    "description": "Environment"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "c61bc94c-683c-8492-4822-7239fb5fe524"
+  }
+}

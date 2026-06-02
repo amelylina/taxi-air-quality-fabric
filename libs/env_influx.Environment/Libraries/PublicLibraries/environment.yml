@@ -1,0 +1,4 @@
+dependencies:
+  - pip:
+      - influxdb-client==1.50.0
+      - mssql-python==1.6.0
