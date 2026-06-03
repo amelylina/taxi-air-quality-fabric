@@ -117,9 +117,12 @@ OpenAQ data is ingested via two complementary paths: incremental daily measureme
 .
 ├── README.md                                    Project overview, prerequisites, run instructions
 ├── resources/                                   Committed assets uploaded to the workspace once
+│   ├── Grafana-dashboard.json                   Exported Grafana dashboard
 │   ├── wh_conn/                                   Custom Python helper for Warehouse connectivity
 │   └── reference/                                 sensor_parameters.csv seeded into dm_air_measurement
 ├── docs/                                        Deep-dive documentation (see "Documentation" below)
+│
+├──integrations/                                 Notebooks for integrations with Telegram, Power Automate and Grafana
 │
 ├── bronze/                                      All bronze-layer items
 │   ├── nb_bronze_*                                Source-specific ingestion notebooks
@@ -165,6 +168,9 @@ OpenAQ data is ingested via two complementary paths: incremental daily measureme
 | [docs/lineage.md](docs/lineage.md) | Source-to-gold data lineage diagrams (one per source family) + pipeline lineage |
 | [docs/known-issues.md](docs/known-issues.md) | Honest list of current limitations, data-source caveats, out-of-scope items, future work |
 | [docs/semantic-model.md](docs/semantic-model.md) | Relationships, DAX measures, report page mapping to the four analytical questions |
+| [docs/dq-bot.md](docs/dq-bot.md) | Data Quality checking telegram bot |
+| [docs/power-automate-export.md](docs/power-automate-export.md) | Power Automate integration for notification via email/app |
+| [docs/grafana-weather.md](docs/grafana-weather.md) | Grafana dashboard with enriched weather data |
 
 ---
 
